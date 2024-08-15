@@ -1,0 +1,9 @@
+
+cpp = meson.get_compiler('cpp')
+be = cpp.find_library('be')
+tracker = cpp.find_library('tracker')
+translation = cpp.find_library('translation')
+
+executable('PrintControl', ['main.cpp','PrintControl.cpp','MainWindow.cpp'],
+	dependencies:[be,tracker,translation]
+	)
