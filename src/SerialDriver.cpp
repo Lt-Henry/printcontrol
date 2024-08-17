@@ -39,6 +39,13 @@ SerialDriver::~SerialDriver()
 
 }
 
+vector<string> SerialDriver::GetDevices()
+{
+	vector<string> tmp;
+	
+	return tmp;
+}
+
 void SerialDriver::MessageReceived(BMessage* message)
 {
 	switch(message->what) {

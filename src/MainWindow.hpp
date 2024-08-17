@@ -44,7 +44,7 @@ namespace pc
 		
 		protected:
 		
-		
+		BFilePanel* openPanel;
 	};
 }
 #endif

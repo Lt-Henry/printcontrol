@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "PrintControl.hpp"
 #include "MainWindow.hpp"
+#include "Messages.hpp"
 
 #include <Application.h>
 #include <TranslatorRoster.h>
@@ -89,6 +90,9 @@ void MainWindow::MessageReceived(BMessage* message)
 			openPanel->Show();
 		break;
 		
+		case Message::MenuQuit:
+			be_app->PostMessage(B_QUIT_REQUESTED);
+		break;
 
 		case Message::OpenRequest: {
 				clog<<"open requested!"<<endl;

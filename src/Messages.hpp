@@ -33,7 +33,7 @@ namespace pc
 		MenuOpen,
 		MenuQuit,
 
-		OpenRequested,
+		OpenRequest,
 
 		LoadFile,
 		FileLoaded,

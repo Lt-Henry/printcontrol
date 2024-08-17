@@ -27,6 +27,9 @@ SOFTWARE.
 
 #include <Looper.h>
 
+#include <string>
+#include <vector>
+
 namespace pc
 {
 	class SerialDriver : public BLooper
@@ -35,6 +38,8 @@ namespace pc
 
 		SerialDriver(BLooper* callback);
 		virtual ~SerialDriver();
+
+		static std::vector<std::string> GetDevices();
 
 		void MessageReceived(BMessage* message) override;
 
