@@ -25,6 +25,7 @@ SOFTWARE.
 #include "PrintControl.hpp"
 #include "MainWindow.hpp"
 #include "Messages.hpp"
+#include "SerialDriver.hpp"
 
 #include <Application.h>
 #include <TranslatorRoster.h>
@@ -58,7 +59,6 @@ MainWindow::MainWindow()
 	menuFile->AddItem(new BMenuItem("Quit",new BMessage(Message::MenuQuit)));
 	
 	AddChild(menu);
-
 	
 	BMessage *openMsg = new BMessage(Message::OpenRequest);
 	
@@ -67,6 +67,31 @@ MainWindow::MainWindow()
 	
 	openPanel->SetTarget(this);
 	
+	BMenu* menuDevice = new BMenu("Device");
+	
+	menu->AddItem(menuDevice);
+	
+	vector<string> devices = SerialDriver::GetDevices();
+	for (string dev : devices) {
+		BMessage* msgDev = new BMessage(Message::MenuDevice);
+		msgDev->AddString("name",dev.c_str());
+		menuDevice->AddItem(new BMenuItem(dev.c_str(),msgDev));
+	}
+	
+	
+	BMenu* menuProgram = new BMenu("Program");
+	menuProgram->AddItem(new BMenuItem("Run", new BMessage(Message::MenuRun)));
+	menuProgram->AddItem(new BMenuItem("Pause", new BMessage(Message::MenuPause)));
+	menuProgram->AddItem(new BMenuItem("Stop", new BMessage(Message::MenuStop)));
+	menuProgram->AddItem(new BMenuItem("Restart", new BMessage(Message::MenuRestart)));
+	menu->AddItem(menuProgram);
+	
+	BMenu* menuControl = new BMenu("Control");
+	menuControl->AddItem(new BMenuItem("Home", new BMessage(Message::MenuHome)));
+	menu->AddItem(menuControl);
+	
+	driver = new SerialDriver(this);
+	driver->Run();
 }
 
 MainWindow::~MainWindow()
@@ -93,13 +118,30 @@ void MainWindow::MessageReceived(BMessage* message)
 		case Message::MenuQuit:
 			be_app->PostMessage(B_QUIT_REQUESTED);
 		break;
-
+		
+		case Message::MenuDevice:
+			clog<<"opening device "<<message->FindString("name")<<endl;
+		break;
+		
 		case Message::OpenRequest: {
 				clog<<"open requested!"<<endl;
+				entry_ref ref;
+				message->FindRef("refs", 0, &ref);
+				BEntry entry(&ref, true);
+				BPath path;
+				entry.GetPath(&path);
+				clog<<"path:"<<path.Path()<<endl;
 				
+				BMessage* msg = new BMessage(Message::LoadFile);
+				msg->AddRef("ref",&ref);
+				driver->PostMessage(msg);
 			}
 		break;
 		
+		case Message::MenuRun:
+			clog<<"Start printing..."<<endl;
+		break;
+			
 		default:
 		BWindow::MessageReceived(message);
 	}

@@ -25,6 +25,7 @@ SOFTWARE.
 #ifndef PC_MAIN_WINDOW
 #define PC_MAIN_WINDOW
 
+#include "SerialDriver.hpp"
 
 #include <Window.h>
 #include <GroupView.h>
@@ -45,6 +46,8 @@ namespace pc
 		protected:
 		
 		BFilePanel* openPanel;
+		
+		pc::SerialDriver* driver;
 	};
 }
 #endif

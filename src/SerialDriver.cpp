@@ -25,6 +25,12 @@ SOFTWARE.
 #include "SerialDriver.hpp"
 #include "Messages.hpp"
 
+#include <Path.h>
+#include <Entry.h>
+#include <SerialPort.h>
+
+#include <iostream>
+
 using namespace pc;
 
 using namespace std;
@@ -42,6 +48,13 @@ SerialDriver::~SerialDriver()
 vector<string> SerialDriver::GetDevices()
 {
 	vector<string> tmp;
+	BSerialPort serial;
+	char buffer[B_OS_NAME_LENGTH];
+	
+	for (int32 n=0;n<serial.CountDevices();n++) {
+		serial.GetDeviceName(n,buffer);
+		tmp.push_back(buffer);
+	}
 	
 	return tmp;
 }
@@ -49,9 +62,16 @@ vector<string> SerialDriver::GetDevices()
 void SerialDriver::MessageReceived(BMessage* message)
 {
 	switch(message->what) {
-		case Message::LoadFile:
+		case Message::LoadFile: {
 			//ToDo: parse file
+			entry_ref ref;
+			message->FindRef("ref", 0, &ref);
+			BEntry entry(&ref, true);
+			BPath path;
+			entry.GetPath(&path);
+			clog<<"parsing "<<path.Path()<<endl;
 			m_cb->PostMessage(Message::FileLoaded);
+			}
 		break;
 
 		case Message::Home:

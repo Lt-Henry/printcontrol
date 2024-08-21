@@ -32,14 +32,26 @@ namespace pc
 
 		MenuOpen,
 		MenuQuit,
+		MenuDevice,
+		MenuRun,
+		MenuPause,
+		MenuStop,
+		MenuRestart,
+		MenuHome,
 
 		OpenRequest,
 
 		LoadFile,
 		FileLoaded,
-
-		Exec,
-		Home
+		
+		Run,
+		Pause,
+		Stop,
+		Restart,
+		
+		Home,
+		Exec
+		
 	};
 	
 }
