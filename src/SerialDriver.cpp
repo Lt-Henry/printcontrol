@@ -78,8 +78,21 @@ void SerialDriver::MessageReceived(BMessage* message)
 			}
 		break;
 
-		case Message::Home:
-			Exec("G28");
+		case Message::Home: {
+			string tmp = "G28";
+			uint8 axis = message->FindInt8("axis");
+			if ((axis & 1) == 1) {
+				tmp+=" X";
+			}
+			if ((axis & 2) == 2) {
+				tmp+=" Y";
+			}
+			
+			if ((axis & 4) == 4) {
+				tmp+=" Z";
+			}
+			Exec(tmp);
+		}
 		break;
 
 	}
@@ -105,10 +118,12 @@ void SerialDriver::LoadFile(string filename)
 
 void SerialDriver::Exec(string line)
 {
-
+	cout<<"OUT "<<line<<endl;
 }
 
-void SerialDriver::Home()
+void SerialDriver::Home(uint8 axis)
 {
-	PostMessage(Message::Home);
+	BMessage* msg = new BMessage(Message::Home);
+	msg->AddInt8("axis",axis);
+	PostMessage(msg);
 }

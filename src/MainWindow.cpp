@@ -87,7 +87,70 @@ MainWindow::MainWindow()
 	menu->AddItem(menuProgram);
 	
 	BMenu* menuControl = new BMenu("Control");
-	menuControl->AddItem(new BMenuItem("Home", new BMessage(Message::MenuHome)));
+	BMenu* submenuHome = new BMenu("Home");
+	menuControl->AddItem(submenuHome);
+	BMessage* msg = new BMessage(Message::MenuHome);
+	msg->AddInt8("axis",7);
+	submenuHome->AddItem(new BMenuItem("All", msg));
+	
+	msg = new BMessage(Message::MenuHome);
+	msg->AddInt8("axis",1);
+	submenuHome->AddItem(new BMenuItem("X", msg));
+	
+	msg = new BMessage(Message::MenuHome);
+	msg->AddInt8("axis",2);
+	submenuHome->AddItem(new BMenuItem("Y", msg));
+	
+	msg = new BMessage(Message::MenuHome);
+	msg->AddInt8("axis",4);
+	submenuHome->AddItem(new BMenuItem("Z", msg));
+	
+	
+	BMenu* submenuFan = new BMenu("Fan");
+	menuControl->AddItem(submenuFan);
+	
+	msg = new BMessage(Message::MenuFan);
+	msg->AddInt8("speed",0);
+	submenuFan->AddItem(new BMenuItem("Off", msg));
+	
+	msg = new BMessage(Message::MenuFan);
+	msg->AddInt8("speed", 64);
+	submenuFan->AddItem(new BMenuItem("25%", msg));
+	
+	msg = new BMessage(Message::MenuFan);
+	msg->AddInt8("speed", 128);
+	submenuFan->AddItem(new BMenuItem("50%", msg));
+	
+	msg = new BMessage(Message::MenuFan);
+	msg->AddInt8("speed", 192);
+	submenuFan->AddItem(new BMenuItem("75%", msg));
+	
+	msg = new BMessage(Message::MenuFan);
+	msg->AddInt8("speed", 255);
+	submenuFan->AddItem(new BMenuItem("100%", msg));
+	
+	BMenu* submenuHotend = new BMenu("Hot-end");
+	menuControl->AddItem(submenuHotend);
+	
+	msg = new BMessage(Message::MenuHotend);
+	msg->AddInt8("enable", 0);
+	submenuHotend->AddItem(new BMenuItem("Off", msg));
+	
+	msg = new BMessage(Message::MenuHotend);
+	msg->AddInt8("enable", 1);
+	submenuHotend->AddItem(new BMenuItem("Heat", msg));
+	
+	BMenu* submenuBed = new BMenu("Bed");
+	menuControl->AddItem(submenuBed);
+	
+	msg = new BMessage(Message::MenuBed);
+	msg->AddInt8("enable", 0);
+	submenuBed->AddItem(new BMenuItem("Off", msg));
+	
+	msg = new BMessage(Message::MenuBed);
+	msg->AddInt8("enable", 1);
+	submenuBed->AddItem(new BMenuItem("Heat", msg));
+	
 	menu->AddItem(menuControl);
 	
 	driver = new SerialDriver(this);
@@ -140,6 +203,10 @@ void MainWindow::MessageReceived(BMessage* message)
 		
 		case Message::FileLoaded:
 			clog<<"File has been loaded"<<endl;
+		break;
+		
+		case Message::MenuHome:
+			driver->Home(message->FindInt8("axis"));
 		break;
 		
 		case Message::MenuRun:

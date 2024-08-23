@@ -56,7 +56,7 @@ namespace pc
 		void LoadFile(std::string filename);
 
 		void Exec(std::string line);
-		void Home();
+		void Home(uint8 axis);
 
 		protected:
 

@@ -38,6 +38,9 @@ namespace pc
 		MenuStop,
 		MenuRestart,
 		MenuHome,
+		MenuFan,
+		MenuHotend,
+		MenuBed,
 
 		OpenRequest,
 
@@ -50,6 +53,9 @@ namespace pc
 		Restart,
 		
 		Home,
+		Fan,
+		Hotend,
+		Bed,
 		Exec
 		
 	};
