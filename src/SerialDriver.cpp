@@ -70,6 +70,10 @@ void SerialDriver::MessageReceived(BMessage* message)
 			BPath path;
 			entry.GetPath(&path);
 			clog<<"parsing "<<path.Path()<<endl;
+			m_gcode.LoadFile(path.Path());
+			clog<<"lines:"<<m_gcode.Lines()<<endl;
+			clog<<"height:"<<m_gcode.Height()<<endl;
+			clog<<"filament:"<<m_gcode.Filament()<<endl;
 			m_cb->PostMessage(Message::FileLoaded);
 			}
 		break;

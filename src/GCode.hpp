@@ -22,49 +22,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef PC_SERIAL_DRIVER
-#define PC_SERIAL_DRIVER
-
-#include "GCode.hpp"
-
-#include <Looper.h>
+#ifndef PC_GCODE
+#define PC_GCODE
 
 #include <string>
 #include <vector>
 
 namespace pc
 {
-	class SerialDriver : public BLooper
+	class GCode
 	{
 		public:
-
-		SerialDriver(BLooper* callback);
-		virtual ~SerialDriver();
-
-		static std::vector<std::string> GetDevices();
-
-		void MessageReceived(BMessage* message) override;
-
-		void Connect();
-		void Disconnect();
-
-		bool IsConnected()
-		{
-			return m_connected;
-		}
-
-		void LoadFile(std::string filename);
-
-		void Exec(std::string line);
-		void Home();
-
-		protected:
-
-		BLooper* m_cb;
-		bool m_connected;
 		
-		pc::GCode m_gcode;
+		GCode();
+		
+		void LoadFile(const char* filename);
+		
+		int Lines() const
+		{
+			return m_lines.size();
+		}
+		
+		float Height() const
+		{
+			return m_height;
+		}
+		
+		float Filament() const
+		{
+			return m_filament;
+		}
+		
+		protected:
+		
+		void Reset();
+		
+		float m_height;
+		float m_filament;
+		
+		std::vector<std::string> m_lines;
 	};
-
 }
+
 #endif

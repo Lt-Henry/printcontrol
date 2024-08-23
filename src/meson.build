@@ -5,6 +5,6 @@ tracker = cpp.find_library('tracker')
 translation = cpp.find_library('translation')
 device = cpp.find_library('device')
 
-executable('PrintControl', ['main.cpp','PrintControl.cpp','MainWindow.cpp','SerialDriver.cpp'],
+executable('PrintControl', ['main.cpp','PrintControl.cpp','MainWindow.cpp','SerialDriver.cpp','GCode.cpp'],
 	dependencies:[be,tracker,translation,device]
 	)

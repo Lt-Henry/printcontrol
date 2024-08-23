@@ -138,6 +138,10 @@ void MainWindow::MessageReceived(BMessage* message)
 			}
 		break;
 		
+		case Message::FileLoaded:
+			clog<<"File has been loaded"<<endl;
+		break;
+		
 		case Message::MenuRun:
 			clog<<"Start printing..."<<endl;
 		break;
