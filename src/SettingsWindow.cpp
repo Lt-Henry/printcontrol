@@ -22,44 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef PC_MESSAGES
-#define PC_MESSAGES
+#include "SettingsWindow.hpp"
 
-namespace pc
+#include <iostream>
+
+using namespace pc;
+
+using namespace std;
+
+SettingsWindow::SettingsWindow()
+: BWindow(BRect(100, 100, 100 + 720, 100 + 512), "Settings", B_DOCUMENT_WINDOW, 0)
 {
-	enum Message : unsigned int
-	{
-
-		MenuOpen,
-		MenuSettings,
-		MenuQuit,
-		MenuDevice,
-		MenuRun,
-		MenuPause,
-		MenuStop,
-		MenuRestart,
-		MenuHome,
-		MenuFan,
-		MenuHotend,
-		MenuBed,
-
-		OpenRequest,
-
-		LoadFile,
-		FileLoaded,
-		
-		Run,
-		Pause,
-		Stop,
-		Restart,
-		
-		Home,
-		Fan,
-		Hotend,
-		Bed,
-		Exec
-		
-	};
-	
 }
-#endif
+
+SettingsWindow::~SettingsWindow()
+{
+}
+
+bool SettingsWindow::QuitRequested()
+{
+	Quit();
+	return true;
+}
+
+void SettingsWindow::MessageReceived(BMessage* message)
+{
+}

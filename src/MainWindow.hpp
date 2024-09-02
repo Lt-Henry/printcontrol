@@ -26,6 +26,7 @@ SOFTWARE.
 #define PC_MAIN_WINDOW
 
 #include "SerialDriver.hpp"
+#include "SettingsWindow.hpp"
 
 #include <Window.h>
 #include <GroupView.h>
@@ -48,6 +49,8 @@ namespace pc
 		BFilePanel* openPanel;
 		
 		pc::SerialDriver* driver;
+		
+		SettingsWindow* settingsWindow;
 	};
 }
 #endif

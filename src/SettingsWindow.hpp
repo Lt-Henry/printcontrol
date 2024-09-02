@@ -22,44 +22,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef PC_MESSAGES
-#define PC_MESSAGES
+#ifndef PC_SETTINGS_WINDOW
+#define PC_SETTINGS_WINDOW
+
+#include <Window.h>
+#include <GroupView.h>
 
 namespace pc
 {
-	enum Message : unsigned int
+	class SettingsWindow : public BWindow
 	{
-
-		MenuOpen,
-		MenuSettings,
-		MenuQuit,
-		MenuDevice,
-		MenuRun,
-		MenuPause,
-		MenuStop,
-		MenuRestart,
-		MenuHome,
-		MenuFan,
-		MenuHotend,
-		MenuBed,
-
-		OpenRequest,
-
-		LoadFile,
-		FileLoaded,
+		public:
 		
-		Run,
-		Pause,
-		Stop,
-		Restart,
+		SettingsWindow();
+		~SettingsWindow();
 		
-		Home,
-		Fan,
-		Hotend,
-		Bed,
-		Exec
+		virtual bool QuitRequested() override;
+		void MessageReceived(BMessage* message) override;
 		
 	};
-	
 }
+
 #endif

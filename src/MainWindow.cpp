@@ -56,6 +56,7 @@ MainWindow::MainWindow()
 	menu->AddItem(menuFile);
 	
 	menuFile->AddItem(new BMenuItem("Open",new BMessage(Message::MenuOpen)));
+	menuFile->AddItem(new BMenuItem("Settings", new BMessage(Message::MenuSettings)));
 	menuFile->AddItem(new BMenuItem("Quit",new BMessage(Message::MenuQuit)));
 	
 	AddChild(menu);
@@ -176,6 +177,11 @@ void MainWindow::MessageReceived(BMessage* message)
 		//open file
 		case Message::MenuOpen:
 			openPanel->Show();
+		break;
+		
+		case Message::MenuSettings:
+			settingsWindow = new SettingsWindow();
+			settingsWindow->Show();
 		break;
 		
 		case Message::MenuQuit:
