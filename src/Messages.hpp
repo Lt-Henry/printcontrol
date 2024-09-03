@@ -44,6 +44,7 @@ namespace pc
 		MenuBed,
 
 		OpenRequest,
+		SettingsClose,
 
 		LoadFile,
 		FileLoaded,

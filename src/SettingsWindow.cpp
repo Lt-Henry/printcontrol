@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include "SettingsWindow.hpp"
+#include "Messages.hpp"
 
 #include <iostream>
 
@@ -30,8 +31,8 @@ using namespace pc;
 
 using namespace std;
 
-SettingsWindow::SettingsWindow()
-: BWindow(BRect(100, 100, 100 + 720, 100 + 512), "Settings", B_DOCUMENT_WINDOW, 0)
+SettingsWindow::SettingsWindow(BWindow* parent)
+: BWindow(BRect(100, 100, 100 + 720, 100 + 512), "Settings", B_TITLED_WINDOW, 0), m_parent(parent)
 {
 }
 
@@ -41,6 +42,7 @@ SettingsWindow::~SettingsWindow()
 
 bool SettingsWindow::QuitRequested()
 {
+	m_parent->PostMessage(Message::SettingsClose);
 	Quit();
 	return true;
 }

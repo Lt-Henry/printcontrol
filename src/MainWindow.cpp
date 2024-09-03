@@ -180,8 +180,14 @@ void MainWindow::MessageReceived(BMessage* message)
 		break;
 		
 		case Message::MenuSettings:
-			settingsWindow = new SettingsWindow();
-			settingsWindow->Show();
+			if (!settingsWindow) {
+				settingsWindow = new SettingsWindow(this);
+				settingsWindow->Show();
+			}
+		break;
+		
+		case Message::SettingsClose:
+			settingsWindow = nullptr;
 		break;
 		
 		case Message::MenuQuit:
