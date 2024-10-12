@@ -25,15 +25,86 @@ SOFTWARE.
 #include "SettingsWindow.hpp"
 #include "Messages.hpp"
 
+#include <TextControl.h>
+#include <Button.h>
+#include <String.h>
+#include <CheckBox.h>
+#include <LayoutBuilder.h>
+#include <ControlLook.h>
+#include <PopUpMenu.h>
+
 #include <iostream>
+#include <vector>
+#include <string>
 
 using namespace pc;
 
 using namespace std;
 
 SettingsWindow::SettingsWindow(BWindow* parent)
-: BWindow(BRect(100, 100, 100 + 720, 100 + 512), "Settings", B_TITLED_WINDOW, 0), m_parent(parent)
+: BWindow(BRect(100, 100, 100 + 512, 100 + 512), "Settings", B_FLOATING_WINDOW_LOOK, B_FLOATING_ALL_WINDOW_FEEL,
+	B_NOT_ZOOMABLE | B_NOT_RESIZABLE | B_ASYNCHRONOUS_CONTROLS | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE, 0), m_parent(parent)
 {
+	
+	BPopUpMenu* popMenu = new BPopUpMenu("data");
+	vector<string> baudrateValues = {"9600","19200","31250","38400","57600","115200","230400"};
+	for (string value:baudrateValues) {
+		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
+	}
+	popMenu->FindItem("9600")->SetMarked(true);
+	BMenuField* fieldBaudrate = new BMenuField("baudrate","Baud rate", popMenu);
+	
+	popMenu = new BPopUpMenu("data");
+	vector<string> parityValues = {"None","Even","Odd"};
+	for (string value:parityValues) {
+		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
+	}
+	popMenu->FindItem("None")->SetMarked(true);
+	BMenuField* fieldParity = new BMenuField("parity","Parity", popMenu);
+	
+	popMenu = new BPopUpMenu("data");
+	vector<string> stopValues = {"1","2"};
+	for (string value:stopValues) {
+		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
+	}
+	popMenu->FindItem("1")->SetMarked(true);
+	BMenuField* fieldStop = new BMenuField("stop","Stop bits", popMenu);
+	
+	popMenu = new BPopUpMenu("data");
+	vector<string> flowValues = {"Hardware","Software","Both","None"};
+	for (string value:flowValues) {
+		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
+	}
+	popMenu->FindItem("None")->SetMarked(true);
+	BMenuField* fieldFlow = new BMenuField("flow","Flow control", popMenu);
+	
+	popMenu = new BPopUpMenu("data");
+	vector<string> dataValues = {"7","8"};
+	for (string value:dataValues) {
+		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
+	}
+	popMenu->FindItem("8")->SetMarked(true);
+	BMenuField* fieldDatabits = new BMenuField("databits","Data bits", popMenu);
+	
+	popMenu = new BPopUpMenu("data");
+	vector<string> lineendValues = {"LF","CR","CR+LF"};
+	for (string value:lineendValues) {
+		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
+	}
+	popMenu->FindItem("LF")->SetMarked(true);
+	BMenuField* fieldLineend = new BMenuField("lineend","Line end", popMenu);
+	
+	BButton* btnOk = new BButton("Ok", new BMessage(Message::SettingsClose));
+	
+	float padding = be_control_look->DefaultItemSpacing();
+	BLayoutBuilder::Grid<>(this, padding, padding)
+		.Add(fieldBaudrate, 1, 1)
+		.Add(fieldParity, 1, 2)
+		.Add(fieldStop, 1, 3)
+		.Add(fieldFlow, 1, 4)
+		.Add(fieldDatabits, 1, 5)
+		.Add(fieldLineend, 1, 6)
+		.Add(btnOk, 2, 10);
 }
 
 SettingsWindow::~SettingsWindow()
@@ -49,4 +120,9 @@ bool SettingsWindow::QuitRequested()
 
 void SettingsWindow::MessageReceived(BMessage* message)
 {
+	switch (message->what) {
+		case Message::SettingsClose:
+			clog<<"closing settings..."<<endl;
+		break;
+	}
 }
