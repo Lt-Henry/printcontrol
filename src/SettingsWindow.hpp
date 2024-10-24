@@ -27,6 +27,7 @@ SOFTWARE.
 
 #include <Window.h>
 #include <GroupView.h>
+#include <Button.h>
 
 namespace pc
 {
@@ -40,9 +41,13 @@ namespace pc
 		virtual bool QuitRequested() override;
 		void MessageReceived(BMessage* message) override;
 		
+		static void SaveSettings(BMessage* settings);
+		static void LoadSettings();
+		
 		protected:
 		
-		BWindow* m_parent;
+		BWindow* fParent;
+		BButton* fBtnOk;
 	};
 }
 

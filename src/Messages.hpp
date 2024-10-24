@@ -46,6 +46,7 @@ namespace pc
 		OpenRequest,
 		SettingsClose,
 		SettingsChanged,
+		Settings,
 
 		LoadFile,
 		FileLoaded,

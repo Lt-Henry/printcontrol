@@ -32,6 +32,10 @@ SOFTWARE.
 #include <LayoutBuilder.h>
 #include <ControlLook.h>
 #include <PopUpMenu.h>
+#include <Path.h>
+#include <Directory.h>
+#include <File.h>
+#include <FindDirectory.h>
 
 #include <iostream>
 #include <vector>
@@ -43,7 +47,7 @@ using namespace std;
 
 SettingsWindow::SettingsWindow(BWindow* parent)
 : BWindow(BRect(100, 100, 100 + 512, 100 + 512), "Settings", B_FLOATING_WINDOW_LOOK, B_FLOATING_ALL_WINDOW_FEEL,
-	B_NOT_ZOOMABLE | B_NOT_RESIZABLE | B_ASYNCHRONOUS_CONTROLS | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE, 0), m_parent(parent)
+	B_NOT_ZOOMABLE | B_NOT_RESIZABLE | B_ASYNCHRONOUS_CONTROLS | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE, 0), fParent(parent)
 {
 	
 	BPopUpMenu* popMenu = new BPopUpMenu("data");
@@ -94,7 +98,8 @@ SettingsWindow::SettingsWindow(BWindow* parent)
 	popMenu->FindItem("LF")->SetMarked(true);
 	BMenuField* fieldLineend = new BMenuField("lineend","Line end", popMenu);
 	
-	BButton* btnOk = new BButton("Ok", new BMessage(Message::SettingsClose));
+	fBtnOk = new BButton("Ok", new BMessage(Message::SettingsClose));
+	fBtnOk->SetEnabled(false);
 	
 	float padding = be_control_look->DefaultItemSpacing();
 	BLayoutBuilder::Grid<>(this, padding, padding)
@@ -104,7 +109,7 @@ SettingsWindow::SettingsWindow(BWindow* parent)
 		.Add(fieldFlow, 1, 4)
 		.Add(fieldDatabits, 1, 5)
 		.Add(fieldLineend, 1, 6)
-		.Add(btnOk, 2, 10);
+		.Add(fBtnOk, 2, 10);
 }
 
 SettingsWindow::~SettingsWindow()
@@ -113,7 +118,7 @@ SettingsWindow::~SettingsWindow()
 
 bool SettingsWindow::QuitRequested()
 {
-	m_parent->PostMessage(Message::SettingsClose);
+	fParent->PostMessage(Message::SettingsClose);
 	Quit();
 	return true;
 }
@@ -121,8 +126,45 @@ bool SettingsWindow::QuitRequested()
 void SettingsWindow::MessageReceived(BMessage* message)
 {
 	switch (message->what) {
-		case Message::SettingsClose:
+		case Message::SettingsClose: {
 			clog<<"closing settings..."<<endl;
+			BMessage* msg = new BMessage(Message::Settings);
+			BMenuField* field = static_cast<BMenuField*>(FindView("baudrate"));
+			msg->AddString("baudrate",field->MenuItem()->Label());
+			
+			field = static_cast<BMenuField*>(FindView("parity"));
+			msg->AddString("parity",field->MenuItem()->Label());
+			
+			SettingsWindow::SaveSettings(msg);
+			delete msg;
+			Quit();
+		}
+		break;
+		
+		case Message::SettingsChanged:
+			fBtnOk->SetEnabled(true);
 		break;
 	}
+}
+
+void SettingsWindow::SaveSettings(BMessage* settings)
+{
+	BPath path;
+	if (find_directory (B_USER_SETTINGS_DIRECTORY, &path) == B_OK) {
+		path.Append("PrintControl");
+
+		BFile file(path.Path(), B_CREATE_FILE | B_ERASE_FILE | B_WRITE_ONLY);
+		if (file.InitCheck() != B_OK || file.Lock() != B_OK) {
+			return;
+			}
+		
+		settings->Flatten(&file);
+		
+		file.Sync();
+		file.Unlock();
+	}
+}
+
+void SettingsWindow::LoadSettings()
+{
 }
