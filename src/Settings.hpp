@@ -27,12 +27,17 @@ SOFTWARE.
 
 #include <Message.h>
 
+#include <string>
+
 namespace pc
 {
 	class Settings {
 		public:
 		static void Save(BMessage* settings);
 		static BMessage* Load();
+		
+		static std::string Name(std::string section, int32 value);
+		static int32 Value(std::string section, std::string name);
 	};
 }
 
