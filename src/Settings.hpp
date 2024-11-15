@@ -28,6 +28,7 @@ SOFTWARE.
 #include <Message.h>
 
 #include <string>
+#include <vector>
 
 namespace pc
 {
@@ -38,6 +39,7 @@ namespace pc
 		
 		static std::string Name(std::string section, int32 value);
 		static int32 Value(std::string section, std::string name);
+		static std::vector<std::string> Section(std::string section);
 	};
 }
 

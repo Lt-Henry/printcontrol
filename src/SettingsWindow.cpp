@@ -90,14 +90,6 @@ SettingsWindow::SettingsWindow(BWindow* parent)
 	popMenu->FindItem("8")->SetMarked(true);
 	BMenuField* fieldDatabits = new BMenuField("databits","Data bits", popMenu);
 	
-	popMenu = new BPopUpMenu("data");
-	vector<string> lineendValues = {"LF","CR","CR+LF"};
-	for (string value:lineendValues) {
-		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
-	}
-	popMenu->FindItem("LF")->SetMarked(true);
-	BMenuField* fieldLineend = new BMenuField("lineend","Line end", popMenu);
-	
 	fBtnOk = new BButton("Ok", new BMessage(Message::SettingsClose));
 	fBtnOk->SetEnabled(false);
 	
@@ -108,7 +100,6 @@ SettingsWindow::SettingsWindow(BWindow* parent)
 		.Add(fieldStop, 1, 3)
 		.Add(fieldFlow, 1, 4)
 		.Add(fieldDatabits, 1, 5)
-		.Add(fieldLineend, 1, 6)
 		.Add(fBtnOk, 2, 10);
 }
 

@@ -48,7 +48,15 @@ map<string,int32> values = {
 	{"baudrate.230400", B_230400_BPS},
 	{"parity.None", B_NO_PARITY},
 	{"parity.Even", B_EVEN_PARITY},
-	{"parity.Odd", B_ODD_PARITY}
+	{"parity.Odd", B_ODD_PARITY},
+	{"stop.1", B_STOP_BITS_1},
+	{"stop.2", B_STOP_BITS_2},
+	{"flow.Software", B_SOFTWARE_CONTROL},
+	{"flow.Hardware", B_HARDWARE_CONTROL},
+	{"flow.Both", B_SOFTWARE_CONTROL | B_HARDWARE_CONTROL},
+	{"flow.None", 0},
+	{"databits.7", B_DATA_BITS_7},
+	{"databits.8", B_DATA_BITS_8}
 };
 
 void Settings::Save(BMessage* settings)
@@ -82,12 +90,13 @@ BMessage* Settings::Load()
 	else {
 	
 		settings = new BMessage(Message::Settings);
-		settings->AddInt64("baudrate",9600);
-		settings->AddInt32("parity",0);
-		settings->AddInt32("stop",0);
-		settings->AddInt32("flow",0);
-		settings->AddInt32("databits",8);
-		settings->AddInt32("lineend",0);
+		settings->AddInt64("baudrate",Value("baudrate","9600"));
+		settings->AddInt32("parity",Value("parity","None"));
+		settings->AddInt32("stop",Value("stop","1"));
+		settings->AddInt32("flow",Value("flow","None"));
+		settings->AddInt32("databits",Value("databits","8"));
+		
+		Settings::Save(settings);
 	}
 	return settings;
 }
@@ -96,7 +105,7 @@ string Settings::Name(string section, int32 value)
 {
 	for (auto kv:values) {
 		if (kv.first.starts_with(section) and kv.second == value) {
-			size_t n = kv.first.find(".");
+			size_t n = kv.first.find(".");n
 			string name = kv.first.substr(n);
 			return name;
 		}
@@ -108,4 +117,18 @@ string Settings::Name(string section, int32 value)
 int32 Settings::Value(string section, string name)
 {
 	return values[section+"."+name];
+}
+
+vector<string> Settings::Section(string section)
+{
+	vector<string> names;
+	
+	for (auto kv:values) {
+		if (kv.first.starts_with(section)) {
+			size_t n = kv.first.find(".");n
+			string name = kv.first.substr(n);
+			names.push_back(name);
+		}
+	}
+	return names;
 }
