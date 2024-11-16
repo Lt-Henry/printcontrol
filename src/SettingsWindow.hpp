@@ -35,14 +35,11 @@ namespace pc
 	{
 		public:
 		
-		SettingsWindow(BWindow* parent);
+		SettingsWindow(BWindow* parent, BMessage* settings);
 		~SettingsWindow();
 		
 		virtual bool QuitRequested() override;
 		void MessageReceived(BMessage* message) override;
-		
-		static void SaveSettings(BMessage* settings);
-		static void LoadSettings();
 		
 		protected:
 		

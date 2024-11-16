@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include "SettingsWindow.hpp"
+#include "Settings.hpp"
 #include "Messages.hpp"
 
 #include <TextControl.h>
@@ -45,13 +46,13 @@ using namespace pc;
 
 using namespace std;
 
-SettingsWindow::SettingsWindow(BWindow* parent)
+SettingsWindow::SettingsWindow(BWindow* parent, BMessage* settings)
 : BWindow(BRect(100, 100, 100 + 512, 100 + 512), "Settings", B_FLOATING_WINDOW_LOOK, B_FLOATING_ALL_WINDOW_FEEL,
 	B_NOT_ZOOMABLE | B_NOT_RESIZABLE | B_ASYNCHRONOUS_CONTROLS | B_AUTO_UPDATE_SIZE_LIMITS | B_CLOSE_ON_ESCAPE, 0), fParent(parent)
 {
 	
 	BPopUpMenu* popMenu = new BPopUpMenu("data");
-	vector<string> baudrateValues = {"9600","19200","31250","38400","57600","115200","230400"};
+	vector<string> baudrateValues = Settings::Section("baudrate");
 	for (string value:baudrateValues) {
 		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
 	}
@@ -101,6 +102,8 @@ SettingsWindow::SettingsWindow(BWindow* parent)
 		.Add(fieldFlow, 1, 4)
 		.Add(fieldDatabits, 1, 5)
 		.Add(fBtnOk, 2, 10);
+	
+	clog<<"settings window is ready"<<endl;
 }
 
 SettingsWindow::~SettingsWindow()
@@ -126,8 +129,8 @@ void SettingsWindow::MessageReceived(BMessage* message)
 			field = static_cast<BMenuField*>(FindView("parity"));
 			msg->AddString("parity",field->MenuItem()->Label());
 			
-			SettingsWindow::SaveSettings(msg);
-			delete msg;
+			//SettingsWindow::SaveSettings(msg);
+			//delete msg;
 			Quit();
 		}
 		break;
@@ -136,26 +139,4 @@ void SettingsWindow::MessageReceived(BMessage* message)
 			fBtnOk->SetEnabled(true);
 		break;
 	}
-}
-
-void SettingsWindow::SaveSettings(BMessage* settings)
-{
-	BPath path;
-	if (find_directory (B_USER_SETTINGS_DIRECTORY, &path) == B_OK) {
-		path.Append("PrintControl");
-
-		BFile file(path.Path(), B_CREATE_FILE | B_ERASE_FILE | B_WRITE_ONLY);
-		if (file.InitCheck() != B_OK || file.Lock() != B_OK) {
-			return;
-			}
-		
-		settings->Flatten(&file);
-		
-		file.Sync();
-		file.Unlock();
-	}
-}
-
-void SettingsWindow::LoadSettings()
-{
 }

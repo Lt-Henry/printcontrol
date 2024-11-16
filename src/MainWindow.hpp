@@ -46,6 +46,7 @@ namespace pc
 		
 		protected:
 		
+		BMessage* settings;
 		BFilePanel* openPanel;
 		
 		pc::SerialDriver* driver;

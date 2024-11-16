@@ -26,6 +26,7 @@ SOFTWARE.
 #include "MainWindow.hpp"
 #include "Messages.hpp"
 #include "SerialDriver.hpp"
+#include "Settings.hpp"
 
 #include <Application.h>
 #include <TranslatorRoster.h>
@@ -49,6 +50,9 @@ using namespace std;
 MainWindow::MainWindow()
 : BWindow(BRect(100, 100, 100 + 720, 100 + 512), "Print Control", B_TITLED_WINDOW, 0)
 {
+
+	settings = Settings::Load();
+	settingsWindow = nullptr;
 
 	BMenuBar* menu = new BMenuBar(BRect(0, 0, Bounds().Width(), 22), "menubar");
 	BMenu* menuFile = new BMenu("File");
@@ -181,7 +185,7 @@ void MainWindow::MessageReceived(BMessage* message)
 		
 		case Message::MenuSettings:
 			if (!settingsWindow) {
-				settingsWindow = new SettingsWindow(this);
+				settingsWindow = new SettingsWindow(this,settings);
 				settingsWindow->Show();
 			}
 		break;

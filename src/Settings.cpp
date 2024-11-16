@@ -32,6 +32,7 @@ SOFTWARE.
 #include <SerialPort.h>
 
 #include <map>
+#include <iostream>
 #include <string>
 
 using namespace pc;
@@ -67,8 +68,9 @@ void Settings::Save(BMessage* settings)
 
 		BFile file(path.Path(), B_CREATE_FILE | B_ERASE_FILE | B_WRITE_ONLY);
 		if (file.InitCheck() != B_OK || file.Lock() != B_OK) {
+			cerr<<"Failed to open settings file"<<endl;
 			return;
-			}
+		}
 		
 		settings->Flatten(&file);
 		
@@ -85,7 +87,17 @@ BMessage* Settings::Load()
 	path.Append("PrintControl");
 	
 	if (find_directory (B_USER_SETTINGS_DIRECTORY, &path) == B_OK) {
-
+		BFile file(path.Path(), B_READ_ONLY);
+		if (file.InitCheck() != B_OK || file.Lock() != B_OK) {
+			cerr<<"Failed to open settings file"<<endl;
+			return nullptr;
+		}
+		
+		settings = new BMessage(Message::Settings);
+		settings->Unflatten(&file);
+		
+		file.Sync();
+		file.Unlock();
 	}
 	else {
 	
@@ -104,8 +116,8 @@ BMessage* Settings::Load()
 string Settings::Name(string section, int32 value)
 {
 	for (auto kv:values) {
-		if (kv.first.starts_with(section) and kv.second == value) {
-			size_t n = kv.first.find(".");n
+		if (kv.first.find(section) == 0 and kv.second == value) {
+			size_t n = kv.first.find(".");
 			string name = kv.first.substr(n);
 			return name;
 		}
@@ -124,9 +136,9 @@ vector<string> Settings::Section(string section)
 	vector<string> names;
 	
 	for (auto kv:values) {
-		if (kv.first.starts_with(section)) {
-			size_t n = kv.first.find(".");n
-			string name = kv.first.substr(n);
+		if (kv.first.find(section) == 0) {
+			size_t n = kv.first.find(".");
+			string name = kv.first.substr(n+1);
 			names.push_back(name);
 		}
 	}
