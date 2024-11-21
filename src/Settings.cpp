@@ -84,23 +84,26 @@ BMessage* Settings::Load()
 	BMessage* settings = nullptr;
 
 	BPath path;
+	find_directory(B_USER_SETTINGS_DIRECTORY,&path);
 	path.Append("PrintControl");
 	
-	if (find_directory (B_USER_SETTINGS_DIRECTORY, &path) == B_OK) {
-		BFile file(path.Path(), B_READ_ONLY);
-		if (file.InitCheck() != B_OK || file.Lock() != B_OK) {
-			cerr<<"Failed to open settings file"<<endl;
-			return nullptr;
-		}
-		
+	bool create_default = false;
+	
+	BFile file(path.Path(), B_READ_ONLY);
+	if (file.InitCheck() != B_OK or file.Lock() != B_OK) {
+		cerr<<"Failed to open settings file"<<endl;
+		create_default = true;
+	}
+	else {
 		settings = new BMessage(Message::Settings);
 		settings->Unflatten(&file);
 		
 		file.Sync();
 		file.Unlock();
 	}
-	else {
 	
+	
+	if (create_default) {
 		settings = new BMessage(Message::Settings);
 		settings->AddInt64("baudrate",Value("baudrate","9600"));
 		settings->AddInt32("parity",Value("parity","None"));
@@ -110,6 +113,7 @@ BMessage* Settings::Load()
 		
 		Settings::Save(settings);
 	}
+	
 	return settings;
 }
 
