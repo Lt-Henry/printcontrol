@@ -102,10 +102,9 @@ BMessage* Settings::Load()
 		file.Unlock();
 	}
 	
-	
 	if (create_default) {
 		settings = new BMessage(Message::Settings);
-		settings->AddInt64("baudrate",Value("baudrate","9600"));
+		settings->AddInt32("baudrate",Value("baudrate","9600"));
 		settings->AddInt32("parity",Value("parity","None"));
 		settings->AddInt32("stop",Value("stop","1"));
 		settings->AddInt32("flow",Value("flow","None"));
@@ -121,8 +120,9 @@ string Settings::Name(string section, int32 value)
 {
 	for (auto kv:values) {
 		if (kv.first.find(section) == 0 and kv.second == value) {
+			clog<<kv.first<<":"<<kv.second<<endl;
 			size_t n = kv.first.find(".");
-			string name = kv.first.substr(n);
+			string name = kv.first.substr(n+1,kv.first.size());
 			return name;
 		}
 	}

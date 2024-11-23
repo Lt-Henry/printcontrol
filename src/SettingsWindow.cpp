@@ -56,39 +56,45 @@ SettingsWindow::SettingsWindow(BWindow* parent, BMessage* settings)
 	for (string value:baudrateValues) {
 		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
 	}
-	popMenu->FindItem("9600")->SetMarked(true);
+	int32 value;
+	settings->FindInt32("baudrate",&value);
+	popMenu->FindItem(Settings::Name("baudrate",value).c_str())->SetMarked(true);
 	BMenuField* fieldBaudrate = new BMenuField("baudrate","Baud rate", popMenu);
 	
 	popMenu = new BPopUpMenu("data");
-	vector<string> parityValues = {"None","Even","Odd"};
+	vector<string> parityValues = Settings::Section("parity");
 	for (string value:parityValues) {
 		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
 	}
-	popMenu->FindItem("None")->SetMarked(true);
+	settings->FindInt32("parity",&value);
+	popMenu->FindItem(Settings::Name("parity",value).c_str())->SetMarked(true);
 	BMenuField* fieldParity = new BMenuField("parity","Parity", popMenu);
 	
 	popMenu = new BPopUpMenu("data");
-	vector<string> stopValues = {"1","2"};
+	vector<string> stopValues = Settings::Section("stop");
 	for (string value:stopValues) {
 		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
 	}
-	popMenu->FindItem("1")->SetMarked(true);
+	settings->FindInt32("stop",&value);
+	popMenu->FindItem(Settings::Name("stop",value).c_str())->SetMarked(true);
 	BMenuField* fieldStop = new BMenuField("stop","Stop bits", popMenu);
 	
 	popMenu = new BPopUpMenu("data");
-	vector<string> flowValues = {"Hardware","Software","Both","None"};
+	vector<string> flowValues = Settings::Section("flow");
 	for (string value:flowValues) {
 		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
 	}
-	popMenu->FindItem("None")->SetMarked(true);
+	settings->FindInt32("flow",&value);
+	popMenu->FindItem(Settings::Name("flow",value).c_str())->SetMarked(true);
 	BMenuField* fieldFlow = new BMenuField("flow","Flow control", popMenu);
 	
 	popMenu = new BPopUpMenu("data");
-	vector<string> dataValues = {"7","8"};
+	vector<string> dataValues = Settings::Section("databits");
 	for (string value:dataValues) {
 		popMenu->AddItem(new BMenuItem(value.c_str(),new BMessage(Message::SettingsChanged)));
 	}
-	popMenu->FindItem("8")->SetMarked(true);
+	settings->FindInt32("databits",&value);
+	popMenu->FindItem(Settings::Name("databits",value).c_str())->SetMarked(true);
 	BMenuField* fieldDatabits = new BMenuField("databits","Data bits", popMenu);
 	
 	fBtnOk = new BButton("Ok", new BMessage(Message::SettingsClose));
@@ -103,7 +109,6 @@ SettingsWindow::SettingsWindow(BWindow* parent, BMessage* settings)
 		.Add(fieldDatabits, 1, 5)
 		.Add(fBtnOk, 2, 10);
 	
-	clog<<"settings window is ready"<<endl;
 }
 
 SettingsWindow::~SettingsWindow()
@@ -123,12 +128,14 @@ void SettingsWindow::MessageReceived(BMessage* message)
 		case Message::SettingsClose: {
 			clog<<"closing settings..."<<endl;
 			BMessage* msg = new BMessage(Message::Settings);
-			BMenuField* field = static_cast<BMenuField*>(FindView("baudrate"));
-			msg->AddString("baudrate",field->MenuItem()->Label());
 			
-			field = static_cast<BMenuField*>(FindView("parity"));
-			msg->AddString("parity",field->MenuItem()->Label());
+			vector<string> options = {"baudrate","parity","stop","flow","databits"};
 			
+			for (string option:options) {
+				BMenuField* field = static_cast<BMenuField*>(FindView(option.c_str()));
+				msg->AddInt32(option.c_str(),Settings::Value(option,field->MenuItem()->Label()));
+			
+			}
 			//SettingsWindow::SaveSettings(msg);
 			//delete msg;
 			Quit();
