@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include "SerialDriver.hpp"
 #include "Messages.hpp"
+#include "Settings.hpp"
 
 #include <Path.h>
 #include <Entry.h>
@@ -35,7 +36,7 @@ using namespace pc;
 
 using namespace std;
 
-SerialDriver::SerialDriver(BLooper* callback) : m_cb(callback), m_connected(false)
+SerialDriver::SerialDriver(BLooper* callback) : m_cb(callback), connected(false)
 {
 
 }
@@ -98,14 +99,33 @@ void SerialDriver::MessageReceived(BMessage* message)
 	}
 }
 
-void SerialDriver::Connect()
+void SerialDriver::Connect(string path, BMessage* settings)
 {
-
+	if (connected) {
+		return;
+	}
+	
+	if (device.Open(path.c_str())) {
+		int32 value;
+		settings->FindInt32("datarate",&value);
+		device.SetDataRate((data_rate)value);
+		connected = true;
+		accepted = true;
+		m_cb->PostMessage(Message::Connected);
+	}
+	
 }
 
 void SerialDriver::Disconnect()
 {
-
+	if (!connected) {
+		return;
+	}
+	
+	device.Close();
+	
+	connected = false;
+	m_cb->PostMessage(Message::Disconnected);
 }
 
 void SerialDriver::LoadFile(string filename)
@@ -126,4 +146,12 @@ void SerialDriver::Home(uint8 axis)
 	BMessage* msg = new BMessage(Message::Home);
 	msg->AddInt8("axis",axis);
 	PostMessage(msg);
+}
+
+void SerialDriver::Send(string line)
+{
+}
+
+void SerialDriver::Read()
+{
 }

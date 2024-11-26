@@ -120,7 +120,7 @@ string Settings::Name(string section, int32 value)
 {
 	for (auto kv:values) {
 		if (kv.first.find(section) == 0 and kv.second == value) {
-			clog<<kv.first<<":"<<kv.second<<endl;
+			//clog<<kv.first<<":"<<kv.second<<endl;
 			size_t n = kv.first.find(".");
 			string name = kv.first.substr(n+1,kv.first.size());
 			return name;

@@ -51,6 +51,9 @@ namespace pc
 		LoadFile,
 		FileLoaded,
 		
+		Connected,
+		Disconnected,
+		
 		Run,
 		Pause,
 		Stop,

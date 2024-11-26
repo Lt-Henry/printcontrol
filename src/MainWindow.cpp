@@ -205,7 +205,21 @@ void MainWindow::MessageReceived(BMessage* message)
 		break;
 		
 		case Message::MenuDevice:
-			clog<<"opening device "<<message->FindString("name")<<endl;
+			if (!driver->IsConnected()) {
+				clog<<"opening device "<<message->FindString("name")<<endl;
+				driver->Connect(message->FindString("name"),settings);
+			}
+			else {
+				driver->Disconnect();
+			}
+		break;
+		
+		case Message::Connected:
+			clog<<"Connected"<<endl;
+		break;
+		
+		case Message::Disconnected:
+			clog<<"Disconnected"<<endl;
 		break;
 		
 		case Message::OpenRequest: {

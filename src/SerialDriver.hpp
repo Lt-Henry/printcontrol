@@ -28,6 +28,7 @@ SOFTWARE.
 #include "GCode.hpp"
 
 #include <Looper.h>
+#include <SerialPort.h>
 
 #include <string>
 #include <vector>
@@ -45,25 +46,31 @@ namespace pc
 
 		void MessageReceived(BMessage* message) override;
 
-		void Connect();
+		void Connect(std::string path, BMessage* settings);
 		void Disconnect();
 
 		bool IsConnected()
 		{
-			return m_connected;
+			return connected;
 		}
 
 		void LoadFile(std::string filename);
 
 		void Exec(std::string line);
 		void Home(uint8 axis);
-
+		
 		protected:
 
+		void Send(std::string line);
+		void Read();
+
+		BSerialPort device;
 		BLooper* m_cb;
-		bool m_connected;
+		bool connected;
 		
 		pc::GCode m_gcode;
+		
+		bool accepted;
 	};
 
 }
