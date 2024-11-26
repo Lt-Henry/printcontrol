@@ -194,6 +194,12 @@ void MainWindow::MessageReceived(BMessage* message)
 			settingsWindow = nullptr;
 		break;
 		
+		case Message::Settings:
+			delete settings;
+			settings = message;
+			Settings::Save(settings);
+		break;
+		
 		case Message::MenuQuit:
 			be_app->PostMessage(B_QUIT_REQUESTED);
 		break;

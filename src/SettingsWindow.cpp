@@ -136,6 +136,8 @@ void SettingsWindow::MessageReceived(BMessage* message)
 				msg->AddInt32(option.c_str(),Settings::Value(option,field->MenuItem()->Label()));
 			
 			}
+			
+			fParent->PostMessage(msg);
 			//SettingsWindow::SaveSettings(msg);
 			//delete msg;
 			Quit();
