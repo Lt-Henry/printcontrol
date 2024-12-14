@@ -138,7 +138,8 @@ void SerialDriver::LoadFile(string filename)
 
 void SerialDriver::Exec(string line)
 {
-	cout<<"OUT "<<line<<endl;
+	clog<<"command:"<<line<<endl;
+	Send(line + "\n");
 }
 
 void SerialDriver::Home(uint8 axis)
@@ -150,6 +151,54 @@ void SerialDriver::Home(uint8 axis)
 
 void SerialDriver::Send(string line)
 {
+	clog<<"p0"<<endl;
+	size_t size = device.Write((const void *)line.c_str(),line.size());
+	
+	if (size<0) {
+		cerr<<"Output error:"<<size<<endl;
+		return;
+	}
+	clog<<"p1"<<endl;
+	string token;
+	vector<string> response;
+	uint8 buffer;
+	
+	bool keep_reading = true;
+	
+	while (keep_reading) {
+		size = device.Read((void *)buffer,1);
+		clog<<"p2"<<endl;
+		if (size<0) {
+			cerr<<"Input error:"<<size<<endl;
+			break;
+		}
+		
+		switch (buffer) {
+			case '\n':
+				response.push_back(token);
+				clog<<"response:";
+				for (string t:response) {
+					clog<<t<<" ";
+					if (t == "ok") {
+						keep_reading = false;
+					}
+				}
+				clog<<endl;
+				response.clear();
+				
+			break;
+			
+			case ' ':
+				response.push_back(token);
+				token.clear();
+			break;
+			
+			default:
+				token.push_back(buffer);
+		}
+		
+	}
+	
 }
 
 void SerialDriver::Read()
