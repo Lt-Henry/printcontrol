@@ -138,32 +138,45 @@ void SerialDriver::Connect(string path, BMessage* settings)
 		return;
 	}
 	
-	if (device.Open(path.c_str())) {
-		int32 value;
-		
-		//baud rate
-		settings->FindInt32("datarate",&value);
-		device.SetDataRate((data_rate)value);
-		
-		//parity
-		settings->FindInt32("parity",&value);
-		device.SetParityMode((parity_mode)value);
-		
-		//stop
-		settings->FindInt32("stop",&value);
-		device.SetStopBits((stop_bits)value);
-		
-		//flow
-		settings->FindInt32("flow",&value);
-		device.SetFlowControl(value);
-		
-		//databits
-		settings->FindInt32("databits",&value);
-		device.SetDataBits((data_bits)value);
-		
+	settings->PrintToStream();
+	
+	int32 value;
+	
+	//baud rate
+	settings->FindInt32("baudrate",&value);
+	clog<<"baudrate "<<value<<endl;
+	device.SetDataRate((data_rate)value);
+	
+	//parity
+	settings->FindInt32("parity",&value);
+	clog<<"parity "<<value<<endl;
+	device.SetParityMode((parity_mode)value);
+	
+	//stop
+	settings->FindInt32("stop",&value);
+	clog<<"stop "<<value<<endl;
+	device.SetStopBits((stop_bits)value);
+	
+	//flow
+	settings->FindInt32("flow",&value);
+	clog<<"flow "<<value<<endl;	
+	device.SetFlowControl(value);
+	
+	//databits
+	settings->FindInt32("databits",&value);
+	clog<<"databits "<<value<<endl;
+	device.SetDataBits((data_bits)value);
+	
+	device.SetBlocking(true);
+	
+	status_t status = device.Open(path.c_str());
+	if (status > 0) {
 		connected = true;
 		accepted = true;
 		m_cb->PostMessage(Message::Connected);
+	}
+	else {
+		cerr<<"Failed to open serial port:"<<status<<endl;
 	}
 	
 }
@@ -226,14 +239,11 @@ void SerialDriver::Bed(uint16 temperature)
 
 void SerialDriver::Send(string line)
 {
-	clog<<"p0"<<endl;
 	size_t size = device.Write((const void *)line.c_str(),line.size());
-	
-	if (size<0) {
+	if (size<=0) {
 		cerr<<"Output error:"<<size<<endl;
 		return;
 	}
-	clog<<"p1"<<endl;
 	string token;
 	vector<string> response;
 	uint8 buffer;
@@ -241,26 +251,29 @@ void SerialDriver::Send(string line)
 	bool keep_reading = true;
 	
 	while (keep_reading) {
-		size = device.Read((void *)buffer,1);
-		clog<<"p2"<<endl;
+		device.WaitForInput();
+		size = device.Read((void *)&buffer,1);
+		
 		if (size<0) {
 			cerr<<"Input error:"<<size<<endl;
 			break;
 		}
 		
+		//no more data to read
+		if (size == 0) {
+			response.push_back(token);
+			break;
+		}
+		
+		//clog<<std::hex<<(int)buffer<<endl;
 		switch (buffer) {
+			case '\r':
+				//eat carriage
+			break;
+			
 			case '\n':
 				response.push_back(token);
-				clog<<"response:";
-				for (string t:response) {
-					clog<<t<<" ";
-					if (t == "ok") {
-						keep_reading = false;
-					}
-				}
-				clog<<endl;
-				response.clear();
-				
+				keep_reading = false;
 			break;
 			
 			case ' ':
@@ -274,6 +287,11 @@ void SerialDriver::Send(string line)
 		
 	}
 	
+	clog<<"response:";
+	for (string t:response) {
+		clog<<t<<" ";
+	}
+	clog<<endl;
 }
 
 void SerialDriver::Read()
