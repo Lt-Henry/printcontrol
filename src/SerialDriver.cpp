@@ -31,6 +31,7 @@ SOFTWARE.
 #include <SerialPort.h>
 
 #include <iostream>
+#include <sstream>
 
 using namespace pc;
 
@@ -95,6 +96,38 @@ void SerialDriver::MessageReceived(BMessage* message)
 			Exec(tmp);
 		}
 		break;
+		
+		case Message::Fan: {
+			stringstream tmp;
+			int fan = message->FindInt8("fan");
+			int speed = message->FindInt8("speed");
+			
+			tmp<<"M106 "<<"P"<<fan<<" S"<<speed;
+			
+			Exec(tmp.str());
+		}
+		break;
+		
+		case Message::Hotend: {
+			stringstream tmp;
+			int hotend = message->FindInt8("hotend");
+			int temperature = message->FindInt16("temperature");
+			
+			tmp<<"M104 "<<"T"<<hotend<<" S"<<temperature;
+			
+			Exec(tmp.str());
+		}
+		break;
+		
+		case Message::Bed: {
+			stringstream tmp;
+			int temperature = message->FindInt16("temperature");
+			
+			tmp<<"M190 "<<"S"<<temperature;
+			
+			Exec(tmp.str());
+		}
+		break;
 
 	}
 }
@@ -107,8 +140,27 @@ void SerialDriver::Connect(string path, BMessage* settings)
 	
 	if (device.Open(path.c_str())) {
 		int32 value;
+		
+		//baud rate
 		settings->FindInt32("datarate",&value);
 		device.SetDataRate((data_rate)value);
+		
+		//parity
+		settings->FindInt32("parity",&value);
+		device.SetParityMode((parity_mode)value);
+		
+		//stop
+		settings->FindInt32("stop",&value);
+		device.SetStopBits((stop_bits)value);
+		
+		//flow
+		settings->FindInt32("flow",&value);
+		device.SetFlowControl(value);
+		
+		//databits
+		settings->FindInt32("databits",&value);
+		device.SetDataBits((data_bits)value);
+		
 		connected = true;
 		accepted = true;
 		m_cb->PostMessage(Message::Connected);
@@ -146,6 +198,29 @@ void SerialDriver::Home(uint8 axis)
 {
 	BMessage* msg = new BMessage(Message::Home);
 	msg->AddInt8("axis",axis);
+	PostMessage(msg);
+}
+
+void SerialDriver::Fan(uint8 fan, uint8 speed)
+{
+	BMessage* msg = new BMessage(Message::Fan);
+	msg->AddInt8("fan",fan);
+	msg->AddInt8("speed",speed);
+	PostMessage(msg);
+}
+
+void SerialDriver::Hotend(uint8 hotend, uint16 temperature)
+{
+	BMessage* msg = new BMessage(Message::Hotend);
+	msg->AddInt8("hotend",hotend);
+	msg->AddInt16("temperature",temperature);
+	PostMessage(msg);
+}
+
+void SerialDriver::Bed(uint16 temperature)
+{
+	BMessage* msg = new BMessage(Message::Bed);
+	msg->AddInt16("temperature",temperature);
 	PostMessage(msg);
 }
 

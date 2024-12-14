@@ -58,6 +58,9 @@ namespace pc
 
 		void Exec(std::string line);
 		void Home(uint8 axis);
+		void Fan(uint8 fan,uint8 speed);
+		void Hotend(uint8 hotend, uint16 temperature);
+		void Bed(uint16 temperature);
 		
 		protected:
 

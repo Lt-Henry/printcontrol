@@ -245,6 +245,26 @@ void MainWindow::MessageReceived(BMessage* message)
 			driver->Home(message->FindInt8("axis"));
 		break;
 		
+		case Message::MenuFan:
+			driver->Fan(0, message->FindInt8("speed"));
+		break;
+		
+		case Message::MenuHotend: {
+			int8 enable = message->FindInt8("enable");
+			//TODO
+			int temperature = (enable == 0) ? 0 : 150;
+			driver->Hotend(1,temperature);
+		}
+		break;
+		
+		case Message::MenuBed: {
+			int8 enable = message->FindInt8("enable");
+			//TODO
+			int temperature = (enable == 0) ? 0 : 40;
+			driver->Bed(temperature);
+		}
+		break;
+		
 		case Message::MenuRun:
 			clog<<"Start printing..."<<endl;
 		break;
