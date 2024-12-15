@@ -100,7 +100,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 		case Message::Fan: {
 			stringstream tmp;
 			int fan = message->FindInt8("fan");
-			int speed = message->FindInt8("speed");
+			int speed = (uint8)message->FindInt8("speed");
 			
 			tmp<<"M106 "<<"P"<<fan<<" S"<<speed;
 			
@@ -248,6 +248,8 @@ void SerialDriver::Send(string line)
 	vector<string> response;
 	uint8 buffer;
 	
+	L1:
+	
 	bool keep_reading = true;
 	
 	while (keep_reading) {
@@ -274,10 +276,6 @@ void SerialDriver::Send(string line)
 			case '\n':
 				response.push_back(token);
 				keep_reading = false;
-			break;
-			
-			case ' ':
-				response.push_back(token);
 				token.clear();
 			break;
 			
@@ -287,11 +285,23 @@ void SerialDriver::Send(string line)
 		
 	}
 	
+	bool ok = false;
 	clog<<"response:";
 	for (string t:response) {
-		clog<<t<<" ";
+		clog<<t<<" "<<endl;
+		
+		if (t == "ok") {
+			ok = true;
+		}
 	}
 	clog<<endl;
+	
+	if (!ok) {
+		goto L1;
+	}
+	else {
+		clog<<"Found ok"<<endl;
+	}
 }
 
 void SerialDriver::Read()
