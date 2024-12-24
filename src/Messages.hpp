@@ -53,6 +53,7 @@ namespace pc
 		
 		Connected,
 		Disconnected,
+		Echo,
 		
 		Run,
 		Pause,
@@ -63,7 +64,9 @@ namespace pc
 		Fan,
 		Hotend,
 		Bed,
-		Exec
+		Exec,
+		Extrude,
+		Retract
 		
 	};
 	

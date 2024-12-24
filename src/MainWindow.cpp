@@ -35,6 +35,9 @@ SOFTWARE.
 #include <Menu.h>
 #include <MenuBar.h>
 #include <MenuItem.h>
+#include <TabView.h>
+#include <TextView.h>
+#include <ScrollView.h>
 #include <Path.h>
 #include <Entry.h>
 #include <Directory.h>
@@ -157,6 +160,18 @@ MainWindow::MainWindow()
 	submenuBed->AddItem(new BMenuItem("Heat", msg));
 	
 	menu->AddItem(menuControl);
+	
+
+	BTabView* tabView = new BTabView(BRect(0,menu->Frame().bottom,Bounds().right,Bounds().bottom),"tab");
+	tabView->SetResizingMode(B_FOLLOW_ALL);
+	
+	BRect textBounds = tabView->Bounds();
+	textBounds.right-=16;
+	textBounds.bottom-=16;
+	BTextView* textView = new BTextView(textBounds,"Console",textBounds,B_FOLLOW_ALL);
+	BScrollView* scrollText = new BScrollView("scrollText",textView, B_FOLLOW_ALL,0,true,true);
+	tabView->AddTab(scrollText);
+	AddChild(tabView);
 	
 	driver = new SerialDriver(this);
 	driver->Run();
