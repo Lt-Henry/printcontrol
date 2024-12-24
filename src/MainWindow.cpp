@@ -166,15 +166,20 @@ MainWindow::MainWindow()
 	tabView->SetResizingMode(B_FOLLOW_ALL);
 	
 	BRect textBounds = tabView->Bounds();
-	textBounds.right-=16;
-	textBounds.bottom-=16;
-	BTextView* textView = new BTextView(textBounds,"Console",textBounds,B_FOLLOW_ALL);
-	BScrollView* scrollText = new BScrollView("scrollText",textView, B_FOLLOW_ALL,0,true,true);
+	textBounds.right-=20;
+	textBounds.bottom-=42;
+	
+	console = new BTextView(textBounds,"console",textBounds,B_FOLLOW_ALL);
+	console->SetWordWrap(false);
+	BScrollView* scrollText = new BScrollView("scrollText",console, B_FOLLOW_ALL,0,true,true);
 	tabView->AddTab(scrollText);
+	tabView->TabAt(0)->SetLabel("Console");
 	AddChild(tabView);
 	
 	driver = new SerialDriver(this);
 	driver->Run();
+	
+	Echo("*** Welcome to PrintControl ***\n");
 }
 
 MainWindow::~MainWindow()
@@ -237,6 +242,14 @@ void MainWindow::MessageReceived(BMessage* message)
 			clog<<"Disconnected"<<endl;
 		break;
 		
+		case Message::Echo: {
+			BString text;
+			
+			message->FindString("text",&text);
+			Echo(text);
+		}
+		break;
+		
 		case Message::OpenRequest: {
 				clog<<"open requested!"<<endl;
 				entry_ref ref;
@@ -246,14 +259,17 @@ void MainWindow::MessageReceived(BMessage* message)
 				entry.GetPath(&path);
 				clog<<"path:"<<path.Path()<<endl;
 				
+				Echo("Loading file...\n");
 				BMessage* msg = new BMessage(Message::LoadFile);
 				msg->AddRef("ref",&ref);
 				driver->PostMessage(msg);
 			}
 		break;
 		
-		case Message::FileLoaded:
+		case Message::FileLoaded: {
 			clog<<"File has been loaded"<<endl;
+			Echo("File loaded\n");
+		}
 		break;
 		
 		case Message::MenuHome:
@@ -287,4 +303,10 @@ void MainWindow::MessageReceived(BMessage* message)
 		default:
 		BWindow::MessageReceived(message);
 	}
+}
+
+void MainWindow::Echo(BString text)
+{
+	console->Insert(text.String());
+	console->Invalidate();
 }

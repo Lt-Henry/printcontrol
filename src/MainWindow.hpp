@@ -31,6 +31,9 @@ SOFTWARE.
 #include <Window.h>
 #include <GroupView.h>
 #include <FilePanel.h>
+#include <TextView.h>
+
+#include <string>
 
 namespace pc
 {
@@ -44,10 +47,13 @@ namespace pc
 		virtual bool QuitRequested() override;
 		void MessageReceived(BMessage* message) override;
 		
+		void Echo(BString text);
+		
 		protected:
 		
 		BMessage* settings;
 		BFilePanel* openPanel;
+		BTextView* console;
 		
 		pc::SerialDriver* driver;
 		
