@@ -138,7 +138,7 @@ void SerialDriver::Connect(string path, BMessage* settings)
 		return;
 	}
 	
-	settings->PrintToStream();
+	//settings->PrintToStream();
 	
 	int32 value;
 	
@@ -174,6 +174,7 @@ void SerialDriver::Connect(string path, BMessage* settings)
 		connected = true;
 		accepted = true;
 		m_cb->PostMessage(Message::Connected);
+		//Exec("M105");
 	}
 	else {
 		cerr<<"Failed to open serial port:"<<status<<endl;
@@ -240,27 +241,62 @@ void SerialDriver::Bed(uint16 temperature)
 uint32 SerialDriver::ProcessInput(string in)
 {
 	string token;
+	string cmd;
+	string value;
+	
+	bool echo = false;
 	bool ok = false;
 	
 	for (char c:in) {
-		if (c == ' ' or c == '\n') {
-			if (token.size() == 0) {
-				continue;
-			}
-			else {
-				cout<<token<<endl;
-				
-				if (token == "ok") {
-					ok = true;
-					clog<<"ok!"<<endl;
-				}
-				
-				token.clear();
-			}
-		}
-		else {
+	
+		if (echo) {
 			token.push_back(c);
+			continue;
 		}
+		
+		switch(c) {
+			case ' ':
+			case '\n':
+				if (token.size() == 0) {
+					continue;
+				}
+				else {
+					
+					if (token == "ok") {
+						ok = true;
+						clog<<"ok!"<<endl;
+					}
+					
+					if (cmd.size() > 0) {
+						clog<<cmd<<"="<<token<<endl;
+					}
+					
+					token.clear();
+					cmd.clear();
+				}
+			break;
+			
+			case ':':
+				cmd = token;
+				token.clear();
+				
+				if (cmd == "echo") {
+					echo = true;
+				}
+			break;
+			
+			default:
+				token.push_back(c);
+		}
+	
+	}
+	
+	if (echo) {
+		clog<<token;
+		
+		BMessage* msg = new BMessage(Message::Echo);
+		msg->AddString("text",token.c_str());
+		m_cb->PostMessage(msg);
 	}
 	
 	return (ok ? 1:0);
@@ -297,12 +333,12 @@ void SerialDriver::Send(string line)
 			case '\n':
 				token.push_back(buffer);
 				
-				if (ProcessInput(token)>0) {
+				if (ProcessInput(token) > 0) {
 					keep_reading = false;
 				}
-				else {
-					token.clear();
-				}
+				
+				token.clear();
+				
 			break;
 		
 			default:
