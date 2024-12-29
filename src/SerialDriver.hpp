@@ -64,6 +64,7 @@ namespace pc
 		
 		protected:
 
+		uint32 ProcessInput(std::string in);
 		void Send(std::string line);
 		void Read();
 

@@ -237,6 +237,35 @@ void SerialDriver::Bed(uint16 temperature)
 	PostMessage(msg);
 }
 
+uint32 SerialDriver::ProcessInput(string in)
+{
+	string token;
+	bool ok = false;
+	
+	for (char c:in) {
+		if (c == ' ' or c == '\n') {
+			if (token.size() == 0) {
+				continue;
+			}
+			else {
+				cout<<token<<endl;
+				
+				if (token == "ok") {
+					ok = true;
+					clog<<"ok!"<<endl;
+				}
+				
+				token.clear();
+			}
+		}
+		else {
+			token.push_back(c);
+		}
+	}
+	
+	return (ok ? 1:0);
+}
+
 void SerialDriver::Send(string line)
 {
 	size_t size = device.Write((const void *)line.c_str(),line.size());
@@ -245,10 +274,8 @@ void SerialDriver::Send(string line)
 		return;
 	}
 	string token;
-	vector<string> response;
-	uint8 buffer;
 	
-	L1:
+	uint8 buffer;
 	
 	bool keep_reading = true;
 	
@@ -261,47 +288,28 @@ void SerialDriver::Send(string line)
 			break;
 		}
 		
-		//no more data to read
 		if (size == 0) {
-			response.push_back(token);
+			cerr<<"Data no available"<<endl;
 			break;
 		}
 		
-		//clog<<std::hex<<(int)buffer<<endl;
 		switch (buffer) {
-			case '\r':
-				//eat carriage
-			break;
-			
 			case '\n':
-				response.push_back(token);
-				keep_reading = false;
-				token.clear();
+				token.push_back(buffer);
+				
+				if (ProcessInput(token)>0) {
+					keep_reading = false;
+				}
+				else {
+					token.clear();
+				}
 			break;
-			
+		
 			default:
 				token.push_back(buffer);
 		}
-		
 	}
 	
-	bool ok = false;
-	clog<<"response:";
-	for (string t:response) {
-		clog<<t<<" "<<endl;
-		
-		if (t == "ok") {
-			ok = true;
-		}
-	}
-	clog<<endl;
-	
-	if (!ok) {
-		goto L1;
-	}
-	else {
-		clog<<"Found ok"<<endl;
-	}
 }
 
 void SerialDriver::Read()
