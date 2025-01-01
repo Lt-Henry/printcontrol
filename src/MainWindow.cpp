@@ -235,7 +235,7 @@ void MainWindow::MessageReceived(BMessage* message)
 		break;
 		
 		case Message::Connected:
-			clog<<"Connected"<<endl;
+			
 			Echo("*** Connected ***");
 			//driver->Exec("M115");
 		break;

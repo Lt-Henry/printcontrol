@@ -26,6 +26,7 @@ SOFTWARE.
 #include "Messages.hpp"
 #include "Settings.hpp"
 
+#include <String.h>
 #include <Path.h>
 #include <Entry.h>
 #include <SerialPort.h>
@@ -105,6 +106,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 			tmp<<"M106 "<<"P"<<fan<<" S"<<speed;
 			
 			Exec(tmp.str());
+			
 		}
 		break;
 		
@@ -128,6 +130,65 @@ void SerialDriver::MessageReceived(BMessage* message)
 			Exec(tmp.str());
 		}
 		break;
+		
+		case Message::Connect: {
+		
+			BMessage* settings = new BMessage();
+			message->FindMessage("settings",settings);
+			
+			BString path;
+			message->FindString("path",&path);
+			
+			int32 value;
+	
+			//baud rate
+			settings->FindInt32("baudrate",&value);
+			clog<<"baudrate "<<value<<endl;
+			device.SetDataRate((data_rate)value);
+			
+			//parity
+			settings->FindInt32("parity",&value);
+			clog<<"parity "<<value<<endl;
+			device.SetParityMode((parity_mode)value);
+			
+			//stop
+			settings->FindInt32("stop",&value);
+			clog<<"stop "<<value<<endl;
+			device.SetStopBits((stop_bits)value);
+			
+			//flow
+			settings->FindInt32("flow",&value);
+			clog<<"flow "<<value<<endl;	
+			device.SetFlowControl(value);
+			
+			//databits
+			settings->FindInt32("databits",&value);
+			clog<<"databits "<<value<<endl;
+			device.SetDataBits((data_bits)value);
+			
+			device.SetBlocking(false);
+			device.SetTimeout(250000);
+			
+			status_t status = device.Open(path);
+			if (status > 0) {
+				connected = true;
+				accepted = true;
+				
+				m_cb->PostMessage(Message::Connected);
+				
+				Read();
+				
+			}
+			else {
+				cerr<<"Failed to open serial port:"<<status<<endl;
+			}
+		
+		}
+		break;
+		
+		case Message::ReadSerial:
+			Read();
+		break;
 
 	}
 }
@@ -139,46 +200,10 @@ void SerialDriver::Connect(string path, BMessage* settings)
 	}
 	
 	//settings->PrintToStream();
-	
-	int32 value;
-	
-	//baud rate
-	settings->FindInt32("baudrate",&value);
-	clog<<"baudrate "<<value<<endl;
-	device.SetDataRate((data_rate)value);
-	
-	//parity
-	settings->FindInt32("parity",&value);
-	clog<<"parity "<<value<<endl;
-	device.SetParityMode((parity_mode)value);
-	
-	//stop
-	settings->FindInt32("stop",&value);
-	clog<<"stop "<<value<<endl;
-	device.SetStopBits((stop_bits)value);
-	
-	//flow
-	settings->FindInt32("flow",&value);
-	clog<<"flow "<<value<<endl;	
-	device.SetFlowControl(value);
-	
-	//databits
-	settings->FindInt32("databits",&value);
-	clog<<"databits "<<value<<endl;
-	device.SetDataBits((data_bits)value);
-	
-	device.SetBlocking(true);
-	
-	status_t status = device.Open(path.c_str());
-	if (status > 0) {
-		connected = true;
-		accepted = true;
-		m_cb->PostMessage(Message::Connected);
-		//Exec("M105");
-	}
-	else {
-		cerr<<"Failed to open serial port:"<<status<<endl;
-	}
+	BMessage* msg = new BMessage(Message::Connect);
+	msg->AddString("path",path.c_str());
+	msg->AddMessage("settings",settings);
+	PostMessage(msg);
 	
 }
 
@@ -206,6 +231,7 @@ void SerialDriver::Exec(string line)
 {
 	clog<<"command:"<<line<<endl;
 	Send(line + "\n");
+	Read();
 }
 
 void SerialDriver::Home(uint8 axis)
@@ -309,45 +335,47 @@ void SerialDriver::Send(string line)
 		cerr<<"Output error:"<<size<<endl;
 		return;
 	}
-	string token;
-	
-	uint8 buffer;
-	
-	bool keep_reading = true;
-	
-	while (keep_reading) {
-		device.WaitForInput();
-		size = device.Read((void *)&buffer,1);
-		
-		if (size<0) {
-			cerr<<"Input error:"<<size<<endl;
-			break;
-		}
-		
-		if (size == 0) {
-			cerr<<"Data no available"<<endl;
-			break;
-		}
-		
-		switch (buffer) {
-			case '\n':
-				token.push_back(buffer);
-				
-				if (ProcessInput(token) > 0) {
-					keep_reading = false;
-				}
-				
-				token.clear();
-				
-			break;
-		
-			default:
-				token.push_back(buffer);
-		}
-	}
 	
 }
 
 void SerialDriver::Read()
 {
+	size_t size;
+	uint8 buffer;
+	
+	string line;
+	int32 remain = 0;
+			
+	status_t status;
+	
+	L1:
+	status = device.NumCharsAvailable(&remain);
+			
+	if (status == B_OK and remain == 0) {
+		snooze(500);
+		PostMessage(Message::ReadSerial);
+		clog<<"remain "<<remain<<endl;
+		return;
+	}
+	
+	while (true) {
+		size = device.Read((void *)&buffer,1);
+		
+		if (size<=0) {
+			cerr<<"Failed to read"<<endl;
+			break;
+		}
+		
+		line+=buffer;
+		
+		if (buffer == '\n') {
+			clog<<line;
+			ProcessInput(line);
+			line.clear();
+			break;
+		}
+	}
+	
+	goto L1;
 }
+

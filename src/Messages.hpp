@@ -51,9 +51,11 @@ namespace pc
 		LoadFile,
 		FileLoaded,
 		
+		Connect,
 		Connected,
 		Disconnected,
 		Echo,
+		ReadSerial,
 		
 		Run,
 		Pause,
