@@ -62,11 +62,20 @@ namespace pc
 		void Hotend(uint8 hotend, uint16 temperature);
 		void Bed(uint16 temperature);
 		
+		BSerialPort* Device()
+		{
+			return &device;
+		}
+		
+		uint32 ProcessInput(std::string in);
+		
 		protected:
 
-		uint32 ProcessInput(std::string in);
 		void Send(std::string line);
-		void Read();
+		
+		void PushOk();
+		void PopOk();
+		void ResetOk();
 
 		BSerialPort device;
 		BLooper* m_cb;
@@ -75,6 +84,10 @@ namespace pc
 		pc::GCode m_gcode;
 		
 		bool accepted;
+		
+		uint32 okCount;
+		
+		thread_id fReaderThread;
 	};
 
 }

@@ -38,6 +38,8 @@ using namespace pc;
 
 using namespace std;
 
+int32 _ReaderFunction(void* data);
+
 SerialDriver::SerialDriver(BLooper* callback) : m_cb(callback), connected(false)
 {
 
@@ -176,7 +178,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 				
 				m_cb->PostMessage(Message::Connected);
 				
-				Read();
+				fReaderThread = spawn_thread(_ReaderFunction, "readerThread", B_NORMAL_PRIORITY, (void*)this);
 				
 			}
 			else {
@@ -187,7 +189,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 		break;
 		
 		case Message::ReadSerial:
-			Read();
+			
 		break;
 
 	}
@@ -231,7 +233,7 @@ void SerialDriver::Exec(string line)
 {
 	clog<<"command:"<<line<<endl;
 	Send(line + "\n");
-	Read();
+	PopOk();
 }
 
 void SerialDriver::Home(uint8 axis)
@@ -325,7 +327,11 @@ uint32 SerialDriver::ProcessInput(string in)
 		m_cb->PostMessage(msg);
 	}
 	
-	return (ok ? 1:0);
+	if (ok) {
+		PushOk();
+	}
+	
+	return 0;
 }
 
 void SerialDriver::Send(string line)
@@ -338,44 +344,61 @@ void SerialDriver::Send(string line)
 	
 }
 
-void SerialDriver::Read()
+void SerialDriver::PushOk()
 {
-	size_t size;
-	uint8 buffer;
+	Lock();
+		okCount++;
+	Unlock();
+}
+
+void SerialDriver::PopOk()
+{
+	bool fetch = false;
 	
-	string line;
-	int32 remain = 0;
-			
-	status_t status;
-	
-	L1:
-	status = device.NumCharsAvailable(&remain);
-			
-	if (status == B_OK and remain == 0) {
-		snooze(500);
-		PostMessage(Message::ReadSerial);
-		clog<<"remain "<<remain<<endl;
-		return;
+	while (!fetch) {
+		Lock();
+		if (okCount > 0) {
+			okCount--;
+			fetch = true;
+		}
+		Unlock();
+		
+		if (!fetch) {
+			snooze(100000);
+		}
 	}
+}
+
+void SerialDriver::ResetOk()
+{
+	Lock();
+	okCount = 0;
+	Unlock();
+}
+
+int32 _ReaderFunction(void* data)
+{
+	SerialDriver* driver = (SerialDriver *) data;
+	BSerialPort* device = driver->Device();
+	
+	uint8 buffer;
+	string line;
+	size_t size;
 	
 	while (true) {
-		size = device.Read((void *)&buffer,1);
+		size = device->Read((void *)&buffer,1);
 		
 		if (size<=0) {
-			cerr<<"Failed to read"<<endl;
 			break;
 		}
 		
 		line+=buffer;
 		
 		if (buffer == '\n') {
-			clog<<line;
-			ProcessInput(line);
+			driver->ProcessInput(line);
 			line.clear();
-			break;
 		}
 	}
 	
-	goto L1;
+	return 0;
 }
-
