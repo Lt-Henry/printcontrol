@@ -286,7 +286,7 @@ void MainWindow::MessageReceived(BMessage* message)
 			int8 enable = message->FindInt8("enable");
 			//TODO
 			int temperature = (enable == 0) ? 0 : 150;
-			driver->Hotend(1,temperature);
+			driver->Hotend(0,temperature);
 		}
 		break;
 		

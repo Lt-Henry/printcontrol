@@ -179,7 +179,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 				m_cb->PostMessage(Message::Connected);
 				
 				fReaderThread = spawn_thread(_ReaderFunction, "readerThread", B_NORMAL_PRIORITY, (void*)this);
-				
+				resume_thread(fReaderThread);
 			}
 			else {
 				cerr<<"Failed to open serial port:"<<status<<endl;
@@ -378,6 +378,8 @@ void SerialDriver::ResetOk()
 
 int32 _ReaderFunction(void* data)
 {
+	clog<<"Reader Thread"<<endl;
+	
 	SerialDriver* driver = (SerialDriver *) data;
 	BSerialPort* device = driver->Device();
 	
@@ -395,6 +397,7 @@ int32 _ReaderFunction(void* data)
 		line+=buffer;
 		
 		if (buffer == '\n') {
+			clog<<"<<"<<line<<endl;
 			driver->ProcessInput(line);
 			line.clear();
 		}
