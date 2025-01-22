@@ -32,6 +32,8 @@ SOFTWARE.
 #include <GroupView.h>
 #include <FilePanel.h>
 #include <TextView.h>
+#include <TextControl.h>
+#include <Button.h>
 
 #include <string>
 
@@ -53,7 +55,11 @@ namespace pc
 		
 		BMessage* settings;
 		BFilePanel* openPanel;
+		
+		// Console view
 		BTextView* console;
+		BTextControl* txtCmd;
+		BButton* btnCmd;
 		
 		pc::SerialDriver* driver;
 		

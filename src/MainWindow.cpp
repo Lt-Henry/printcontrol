@@ -38,6 +38,8 @@ SOFTWARE.
 #include <TabView.h>
 #include <TextView.h>
 #include <ScrollView.h>
+#include <LayoutBuilder.h>
+#include <ControlLook.h>
 #include <Path.h>
 #include <Entry.h>
 #include <Directory.h>
@@ -165,14 +167,33 @@ MainWindow::MainWindow()
 	BTabView* tabView = new BTabView(BRect(0,menu->Frame().bottom,Bounds().right,Bounds().bottom),"tab");
 	tabView->SetResizingMode(B_FOLLOW_ALL);
 	
-	BRect textBounds = tabView->Bounds();
-	textBounds.right-=20;
-	textBounds.bottom-=42;
+	BRect area = Bounds();
+	area.bottom-=44;
 	
-	console = new BTextView(textBounds,"console",textBounds,B_FOLLOW_ALL);
+	BView* consoleView = new BView(area,"consoleArea", B_FOLLOW_ALL,0);
+	consoleView->SetResizingMode(B_FOLLOW_ALL);
+	tabView->AddTab(consoleView);
+	
+	console = new BTextView("console");
 	console->SetWordWrap(false);
-	BScrollView* scrollText = new BScrollView("scrollText",console, B_FOLLOW_ALL,0,true,true);
-	tabView->AddTab(scrollText);
+	console->SetResizingMode(B_FOLLOW_ALL);
+	BScrollView* scrollText = new BScrollView("scrollText", console, 0, true, true);
+	//tabView->AddTab(scrollText);
+	
+	txtCmd = new BTextControl("","",new BMessage(Message::CommandSend));
+	txtCmd->SetAlignment(B_ALIGN_LEFT, B_ALIGN_LEFT);
+	//tabView->AddTab(cmdBox);
+	
+	btnCmd = new BButton("Send", new BMessage(Message::CommandSend));
+	
+	float padding = be_control_look->DefaultItemSpacing();
+	BLayoutBuilder::Grid<>(consoleView, padding, padding)
+		.SetInsets(padding, padding, padding, padding)
+		.Add(scrollText, 0, 0, 4, 1)
+		.Add(txtCmd, 0,2,3,1)
+		.Add(btnCmd, 3,2,1,1);
+		
+	
 	tabView->TabAt(0)->SetLabel("Console");
 	AddChild(tabView);
 	
@@ -232,6 +253,17 @@ void MainWindow::MessageReceived(BMessage* message)
 			else {
 				driver->Disconnect();
 			}
+		break;
+		
+		case Message::CommandSend: {
+			BString text = txtCmd->Text();
+			text<<"\n";
+			
+			if (text.Length()>0) {
+				Echo(text);
+				txtCmd->SetText("");
+			}
+		}
 		break;
 		
 		case Message::Connected:

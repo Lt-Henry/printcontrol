@@ -48,6 +48,8 @@ namespace pc
 		SettingsChanged,
 		Settings,
 
+		CommandSend,
+
 		LoadFile,
 		FileLoaded,
 		
