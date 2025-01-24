@@ -127,12 +127,31 @@ void SerialDriver::MessageReceived(BMessage* message)
 			stringstream tmp;
 			int temperature = message->FindInt16("temperature");
 			
-			tmp<<"M190 "<<"S"<<temperature;
+			tmp<<"M140 "<<"S"<<temperature;
 			
 			Exec(tmp.str());
 		}
 		break;
 		
+		case Message::Extrude: {
+			stringstream tmp;
+			int mm = message->FindInt32("mm");
+			
+			tmp<<"G0 "<<"E"<<mm;
+			
+			Exec(tmp.str());
+		}
+		break;
+		
+		case Message::Retract: {
+			stringstream tmp;
+			int mm = message->FindInt32("mm");
+			
+			tmp<<"G0 "<<"E-"<<mm;
+			
+			Exec(tmp.str());
+		}
+		break;
 		case Message::Connect: {
 		
 			BMessage* settings = new BMessage();
@@ -263,6 +282,20 @@ void SerialDriver::Bed(uint16 temperature)
 {
 	BMessage* msg = new BMessage(Message::Bed);
 	msg->AddInt16("temperature",temperature);
+	PostMessage(msg);
+}
+
+void SerialDriver::Extrude(uint32 mm)
+{
+	BMessage* msg = new BMessage(Message::Extrude);
+	msg->AddInt32("mm",mm);
+	PostMessage(msg);
+}
+
+void SerialDriver::Retract(uint32 mm)
+{
+	BMessage* msg = new BMessage(Message::Retract);
+	msg->AddInt32("mm",mm);
 	PostMessage(msg);
 }
 

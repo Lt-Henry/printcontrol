@@ -161,8 +161,26 @@ MainWindow::MainWindow()
 	msg->AddInt8("enable", 1);
 	submenuBed->AddItem(new BMenuItem("Heat", msg));
 	
+	
+	BMenu* submenuExtruder = new BMenu("Extruder");
+	menuControl->AddItem(submenuExtruder);
+	
+	msg = new BMessage(Message::MenuExtrude);
+	msg->AddInt8("mm", 10);
+	submenuExtruder->AddItem(new BMenuItem("Extrude 10 mm", msg));
+	
+	msg = new BMessage(Message::MenuExtrude);
+	msg->AddInt8("mm", 1);
+	submenuExtruder->AddItem(new BMenuItem("Extrude 1 mm", msg));
+	
+	msg = new BMessage(Message::MenuRetract);
+	msg->AddInt8("mm", 1);
+	submenuExtruder->AddItem(new BMenuItem("Retract 1 mm", msg));
 	menu->AddItem(menuControl);
 	
+	msg = new BMessage(Message::MenuRetract);
+	msg->AddInt8("mm", 10);
+	submenuExtruder->AddItem(new BMenuItem("Retract 10 mm", msg));
 
 	BTabView* tabView = new BTabView(BRect(0,menu->Frame().bottom,Bounds().right,Bounds().bottom),"tab");
 	tabView->SetResizingMode(B_FOLLOW_ALL);
@@ -328,6 +346,14 @@ void MainWindow::MessageReceived(BMessage* message)
 			int temperature = (enable == 0) ? 0 : 40;
 			driver->Bed(temperature);
 		}
+		break;
+		
+		case Message::MenuExtrude:
+		
+		break;
+		
+		case Message::MenuRetract:
+		
 		break;
 		
 		case Message::MenuRun:

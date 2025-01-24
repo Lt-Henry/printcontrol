@@ -42,6 +42,8 @@ namespace pc
 		MenuFan,
 		MenuHotend,
 		MenuBed,
+		MenuExtrude,
+		MenuRetract,
 
 		OpenRequest,
 		SettingsClose,

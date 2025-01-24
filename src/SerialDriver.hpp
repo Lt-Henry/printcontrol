@@ -61,6 +61,8 @@ namespace pc
 		void Fan(uint8 fan,uint8 speed);
 		void Hotend(uint8 hotend, uint16 temperature);
 		void Bed(uint16 temperature);
+		void Extrude(uint32 mm);
+		void Retract(uint32 mm);
 		
 		BSerialPort* Device()
 		{
