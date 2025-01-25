@@ -42,7 +42,9 @@ int32 _ReaderFunction(void* data);
 
 SerialDriver::SerialDriver(BLooper* callback) : m_cb(callback), connected(false)
 {
-
+	messenger = BMessenger(nullptr,this);
+	messageQuery = new BMessage(Message::QueryInfo);
+	messageRunner = new BMessageRunner(messenger, messageQuery, 1000000);
 }
 
 SerialDriver::~SerialDriver()
@@ -210,6 +212,12 @@ void SerialDriver::MessageReceived(BMessage* message)
 		case Message::ReadSerial:
 			
 		break;
+		
+		case Message::QueryInfo:
+			if (connected) {
+				
+			}
+		break;
 
 	}
 }
@@ -250,7 +258,7 @@ void SerialDriver::LoadFile(string filename)
 
 void SerialDriver::Exec(string line)
 {
-	clog<<"command:"<<line<<endl;
+	//clog<<"command:"<<line<<endl;
 	Send(line + "\n");
 	PopOk();
 }

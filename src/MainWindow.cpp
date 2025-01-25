@@ -200,6 +200,7 @@ MainWindow::MainWindow()
 	
 	txtCmd = new BTextControl("","",new BMessage(Message::CommandSend));
 	txtCmd->SetAlignment(B_ALIGN_LEFT, B_ALIGN_LEFT);
+	
 	//tabView->AddTab(cmdBox);
 	
 	btnCmd = new BButton("Send", new BMessage(Message::CommandSend));
@@ -212,13 +213,19 @@ MainWindow::MainWindow()
 		.Add(btnCmd, 3,2,1,1);
 		
 	
+	BView* infoView = new BView(area,"infoArea", B_FOLLOW_ALL,0);
+	infoView->SetResizingMode(B_FOLLOW_ALL);
+	tabView->AddTab(infoView);
+	
 	tabView->TabAt(0)->SetLabel("Console");
+	tabView->TabAt(1)->SetLabel("Info");
 	AddChild(tabView);
 	
 	driver = new SerialDriver(this);
 	driver->Run();
 	
 	Echo("*** Welcome to PrintControl ***\n");
+	
 }
 
 MainWindow::~MainWindow()
@@ -235,7 +242,6 @@ void MainWindow::MessageReceived(BMessage* message)
 {
 
 	switch (message->what) {
-	
 		
 		//open file
 		case Message::MenuOpen:
@@ -277,7 +283,10 @@ void MainWindow::MessageReceived(BMessage* message)
 			BString text = txtCmd->Text();
 			text<<"\n";
 			
-			if (text.Length()>0) {
+			if (text.Length() > 0) {
+				if (driver->IsConnected()) {
+					driver->Exec(txtCmd->Text());
+				}
 				Echo(text);
 				txtCmd->SetText("");
 			}
@@ -291,6 +300,7 @@ void MainWindow::MessageReceived(BMessage* message)
 		break;
 		
 		case Message::Disconnected:
+			
 			clog<<"Disconnected"<<endl;
 		break;
 		

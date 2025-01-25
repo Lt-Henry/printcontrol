@@ -61,6 +61,8 @@ namespace pc
 		BTextControl* txtCmd;
 		BButton* btnCmd;
 		
+		// Info view
+		
 		pc::SerialDriver* driver;
 		
 		SettingsWindow* settingsWindow;

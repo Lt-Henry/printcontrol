@@ -29,6 +29,8 @@ SOFTWARE.
 
 #include <Looper.h>
 #include <SerialPort.h>
+#include <Messenger.h>
+#include <MessageRunner.h>
 
 #include <string>
 #include <vector>
@@ -79,6 +81,10 @@ namespace pc
 		void PopOk();
 		void ResetOk();
 
+		BMessenger messenger;
+		BMessageRunner* messageRunner;
+		BMessage* messageQuery;
+		
 		BSerialPort device;
 		BLooper* m_cb;
 		bool connected;

@@ -66,6 +66,7 @@ namespace pc
 		Stop,
 		Restart,
 		
+		QueryInfo,
 		Home,
 		Fan,
 		Hotend,
