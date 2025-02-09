@@ -73,7 +73,9 @@ namespace pc
 		Bed,
 		Exec,
 		Extrude,
-		Retract
+		Retract,
+		
+		PrintStep
 		
 	};
 	

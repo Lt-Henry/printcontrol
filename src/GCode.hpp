@@ -43,6 +43,11 @@ namespace pc
 			return m_lines.size();
 		}
 		
+		std::string Line(int n) const
+		{
+			return m_lines[n];
+		}
+		
 		float Height() const
 		{
 			return m_height;

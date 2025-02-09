@@ -368,6 +368,7 @@ void MainWindow::MessageReceived(BMessage* message)
 		
 		case Message::MenuRun:
 			clog<<"Start printing..."<<endl;
+			driver->PrintRun();
 		break;
 			
 		default:

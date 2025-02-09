@@ -40,7 +40,11 @@ using namespace std;
 
 int32 _ReaderFunction(void* data);
 
-SerialDriver::SerialDriver(BLooper* callback) : m_cb(callback), connected(false)
+SerialDriver::SerialDriver(BLooper* callback) : 
+m_cb(callback), 
+connected(false),
+printStatus(PrintStatus::Off),
+printLine(0)
 {
 	messenger = BMessenger(nullptr,this);
 	messageQuery = new BMessage(Message::QueryInfo);
@@ -219,6 +223,23 @@ void SerialDriver::MessageReceived(BMessage* message)
 			}
 		break;
 
+		case Message::PrintStep:
+			if (printStatus != PrintStatus::Running) {
+				break;
+			}
+			
+			if (printLine >= m_gcode.Lines()) {
+				printStatus = PrintStatus::Ended;
+				break;
+			}
+			
+			Send(m_gcode.Line(printLine));
+			PopOk();
+			clog<<"** printed N"<<printLine<<endl;
+			printLine++;
+			
+			PostMessage(Message::PrintStep);
+		break;
 	}
 }
 
@@ -307,7 +328,71 @@ void SerialDriver::Retract(uint32 mm)
 	PostMessage(msg);
 }
 
-uint32 SerialDriver::ProcessInput(string in)
+void SerialDriver::PrintRun()
+{
+	printStatus = PrintStatus::Running;
+}
+
+void SerialDriver::PrintPause()
+{
+	printStatus = PrintStatus::Paused;
+}
+
+void SerialDriver::PrintStop()
+{
+	printStatus = PrintStatus::Ended;
+}
+
+void SerialDriver::Send(string line)
+{
+	size_t size = device.Write((const void *)line.c_str(),line.size());
+	if (size<=0) {
+		cerr<<"Output error:"<<size<<endl;
+		return;
+	}
+	
+}
+
+void SerialDriver::PushOk()
+{
+	Lock();
+		okCount++;
+	Unlock();
+}
+
+void SerialDriver::PopOk()
+{
+	bool fetch = false;
+	
+	while (!fetch) {
+		Lock();
+		if (okCount > 0) {
+			okCount--;
+			fetch = true;
+		}
+		Unlock();
+		
+		if (!fetch) {
+			snooze(100000);
+		}
+	}
+}
+
+void SerialDriver::ResetOk()
+{
+	Lock();
+	okCount = 0;
+	Unlock();
+}
+
+void SerialDriver::PushEcho(string text)
+{
+	BMessage* msg = new BMessage(Message::Echo);
+	msg->AddString("text",text.c_str());
+	m_cb->PostMessage(msg);
+}
+
+uint32 _ProcessInput(SerialDriver* driver, string in)
 {
 	string token;
 	string cmd;
@@ -362,59 +447,14 @@ uint32 SerialDriver::ProcessInput(string in)
 	
 	if (echo) {
 		clog<<token;
-		
-		BMessage* msg = new BMessage(Message::Echo);
-		msg->AddString("text",token.c_str());
-		m_cb->PostMessage(msg);
+		driver->PushEcho(token);
 	}
 	
 	if (ok) {
-		PushOk();
+		driver->PushOk();
 	}
 	
 	return 0;
-}
-
-void SerialDriver::Send(string line)
-{
-	size_t size = device.Write((const void *)line.c_str(),line.size());
-	if (size<=0) {
-		cerr<<"Output error:"<<size<<endl;
-		return;
-	}
-	
-}
-
-void SerialDriver::PushOk()
-{
-	Lock();
-		okCount++;
-	Unlock();
-}
-
-void SerialDriver::PopOk()
-{
-	bool fetch = false;
-	
-	while (!fetch) {
-		Lock();
-		if (okCount > 0) {
-			okCount--;
-			fetch = true;
-		}
-		Unlock();
-		
-		if (!fetch) {
-			snooze(100000);
-		}
-	}
-}
-
-void SerialDriver::ResetOk()
-{
-	Lock();
-	okCount = 0;
-	Unlock();
 }
 
 int32 _ReaderFunction(void* data)
@@ -439,7 +479,7 @@ int32 _ReaderFunction(void* data)
 		
 		if (buffer == '\n') {
 			clog<<"<<"<<line<<endl;
-			driver->ProcessInput(line);
+			_ProcessInput(driver, line);
 			line.clear();
 		}
 	}

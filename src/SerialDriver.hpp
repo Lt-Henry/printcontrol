@@ -37,6 +37,13 @@ SOFTWARE.
 
 namespace pc
 {
+	enum class PrintStatus {
+		Off,
+		Running,
+		Paused,
+		Ended
+	};
+	
 	class SerialDriver : public BLooper
 	{
 		public:
@@ -66,21 +73,28 @@ namespace pc
 		void Extrude(uint32 mm);
 		void Retract(uint32 mm);
 		
+		void PrintRun();
+		void PrintPause();
+		void PrintStop();
+		
 		BSerialPort* Device()
 		{
 			return &device;
 		}
 		
-		uint32 ProcessInput(std::string in);
+		//uint32 ProcessInput(std::string in);
 		
-		protected:
+		
 
 		void Send(std::string line);
 		
 		void PushOk();
 		void PopOk();
 		void ResetOk();
-
+		
+		void PushEcho(std::string text);
+		
+		protected:
 		BMessenger messenger;
 		BMessageRunner* messageRunner;
 		BMessage* messageQuery;
@@ -96,6 +110,9 @@ namespace pc
 		uint32 okCount;
 		
 		thread_id fReaderThread;
+		
+		PrintStatus printStatus;
+		int printLine;
 	};
 
 }
