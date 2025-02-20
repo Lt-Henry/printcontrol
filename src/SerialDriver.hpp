@@ -107,7 +107,7 @@ namespace pc
 		
 		bool accepted;
 		
-		uint32 okCount;
+		int32 okCount;
 		
 		thread_id fReaderThread;
 		

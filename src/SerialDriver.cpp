@@ -40,6 +40,23 @@ using namespace std;
 
 int32 _ReaderFunction(void* data);
 
+string checksum(string line)
+{
+	string value;
+	stringstream ss;
+	int tmp = 0;
+	if (line.size() > 0) {
+		
+		for (size_t n=0;n<line.size();n++) {
+			tmp = tmp xor line[n];
+		}
+	}
+	
+	ss<<tmp;
+	value = ss.str();
+	return value;
+}
+
 SerialDriver::SerialDriver(BLooper* callback) : 
 m_cb(callback), 
 connected(false),
@@ -223,7 +240,8 @@ void SerialDriver::MessageReceived(BMessage* message)
 			}
 		break;
 
-		case Message::PrintStep:
+		case Message::PrintStep: {
+			
 			if (printStatus != PrintStatus::Running) {
 				break;
 			}
@@ -233,12 +251,18 @@ void SerialDriver::MessageReceived(BMessage* message)
 				break;
 			}
 			
-			Send(m_gcode.Line(printLine));
+			string code = m_gcode.Line(printLine);
+			stringstream ss;
+			ss<<"N"<<printLine<<" "<<code;
+			ss<<"*"<<checksum(ss.str());
+			clog<<ss.str()<<endl;
+			Send(ss.str());
 			PopOk();
-			clog<<"** printed N"<<printLine<<endl;
+			
 			printLine++;
 			
 			PostMessage(Message::PrintStep);
+		}
 		break;
 	}
 }
@@ -279,7 +303,7 @@ void SerialDriver::LoadFile(string filename)
 
 void SerialDriver::Exec(string line)
 {
-	//clog<<"command:"<<line<<endl;
+	clog<<"command:"<<line<<endl;
 	Send(line + "\n");
 	PopOk();
 }
@@ -331,6 +355,7 @@ void SerialDriver::Retract(uint32 mm)
 void SerialDriver::PrintRun()
 {
 	printStatus = PrintStatus::Running;
+	PostMessage(Message::PrintStep);
 }
 
 void SerialDriver::PrintPause()
@@ -355,25 +380,24 @@ void SerialDriver::Send(string line)
 
 void SerialDriver::PushOk()
 {
-	Lock();
-		okCount++;
-	Unlock();
+	atomic_add(&okCount,1);
+	//clog<<"pushed ok!"<<endl;
 }
 
 void SerialDriver::PopOk()
 {
-	bool fetch = false;
+	int32 value = 0;
 	
-	while (!fetch) {
-		Lock();
-		if (okCount > 0) {
-			okCount--;
-			fetch = true;
-		}
-		Unlock();
+	while (true) {
+		value = atomic_get(&okCount);
 		
-		if (!fetch) {
+		if (value <= 0) {
+			//clog<<"waiting for ok..."<<endl;
 			snooze(100000);
+		}
+		else {
+			atomic_add(&okCount,-1);
+			break;
 		}
 	}
 }
