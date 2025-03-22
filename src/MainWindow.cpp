@@ -182,12 +182,20 @@ MainWindow::MainWindow()
 	msg->AddInt8("mm", 10);
 	submenuExtruder->AddItem(new BMenuItem("Retract 10 mm", msg));
 
-	BTabView* tabView = new BTabView(BRect(0,menu->Frame().bottom,Bounds().right,Bounds().bottom),"tab");
-	tabView->SetResizingMode(B_FOLLOW_ALL);
-	
 	BRect area = Bounds();
-	area.bottom-=44;
+	area.top = menu->Bounds().bottom;
 	
+	clog<<area.left<<","<<area.top<<","<<area.right<<","<<area.bottom<<endl;
+	
+	BView* statusBar = new BView(BRect(0,area.bottom-24,area.right,area.bottom),"statusBar", B_FOLLOW_ALL, 0);
+	BStringView* statusText = new BStringView(statusBar->Bounds(),"statusText","Connection: None, Status: None", B_FOLLOW_ALL);
+	AddChild(statusBar);
+	statusBar->AddChild(statusText);
+	
+	BTabView* tabView = new BTabView(BRect(0,area.top, area.right, area.bottom),"tab");
+	tabView->SetResizingMode(B_FOLLOW_ALL);
+
+	area.bottom-=64;
 	BView* consoleView = new BView(area,"consoleArea", B_FOLLOW_ALL,0);
 	consoleView->SetResizingMode(B_FOLLOW_ALL);
 	tabView->AddTab(consoleView);

@@ -34,6 +34,7 @@ SOFTWARE.
 #include <TextView.h>
 #include <TextControl.h>
 #include <Button.h>
+#include <StringView.h>
 
 #include <string>
 
