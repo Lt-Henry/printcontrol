@@ -40,21 +40,38 @@ using namespace std;
 
 int32 _ReaderFunction(void* data);
 
-string checksum(string line)
+string prepare_line(int number,string line)
 {
 	string value;
 	stringstream ss;
-	int tmp = 0;
+	bool valid=false;
+	
+	uint8 tmp = 0;
 	if (line.size() > 0) {
+		ss<<"N"<<number<<" ";
 		
 		for (size_t n=0;n<line.size();n++) {
-			tmp = tmp xor line[n];
+			uint8 c = line[n];
+			if (c == ';') {
+				break;
+			}
+			valid=true;
+			ss<<c;
+			//tmp = tmp xor c;
 		}
+		
+		line = ss.str();
+		for (size_t n=0;n<line.size();n++) {
+			uint8 c = line[n];
+			tmp = tmp xor c;
+		}
+		ss<<"*"<<(int)tmp<<"\n";
 	}
 	
-	ss<<tmp;
-	value = ss.str();
-	return value;
+	if (!valid) {
+		return "";
+	}
+	return ss.str();
 }
 
 SerialDriver::SerialDriver(BLooper* callback) : 
@@ -246,20 +263,24 @@ void SerialDriver::MessageReceived(BMessage* message)
 				break;
 			}
 			
-			if (printLine >= m_gcode.Lines()) {
+			if (readLine >= m_gcode.Lines()) {
 				printStatus = PrintStatus::Ended;
 				break;
 			}
 			
-			string code = m_gcode.Line(printLine);
-			stringstream ss;
-			ss<<"N"<<printLine<<" "<<code;
-			ss<<"*"<<checksum(ss.str());
-			clog<<ss.str()<<endl;
-			Send(ss.str());
+			string code = m_gcode.Line(readLine);
+			code = prepare_line(printLine+1,code);
+			if (code.size() == 0) {
+				readLine++;
+				PostMessage(Message::PrintStep);
+				break;
+			}
+			clog<<code;
+			Send(code);
 			PopOk();
 			
 			printLine++;
+			readLine++;
 			
 			PostMessage(Message::PrintStep);
 		}
@@ -355,6 +376,9 @@ void SerialDriver::Retract(uint32 mm)
 void SerialDriver::PrintRun()
 {
 	printStatus = PrintStatus::Running;
+	//Exec("M110 N1");
+	printLine = 0;
+	readLine = 0;
 	PostMessage(Message::PrintStep);
 }
 

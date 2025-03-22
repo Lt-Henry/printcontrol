@@ -113,6 +113,7 @@ namespace pc
 		
 		PrintStatus printStatus;
 		int printLine;
+		int readLine;
 	};
 
 }
