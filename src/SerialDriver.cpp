@@ -236,7 +236,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 				accepted = true;
 				
 				m_cb->PostMessage(Message::Connected);
-				
+				this->devicePath = path;
 				fReaderThread = spawn_thread(_ReaderFunction, "readerThread", B_NORMAL_PRIORITY, (void*)this);
 				resume_thread(fReaderThread);
 			}
@@ -309,6 +309,7 @@ void SerialDriver::Disconnect()
 	}
 	
 	device.Close();
+	this->devicePath="";
 	
 	connected = false;
 	m_cb->PostMessage(Message::Disconnected);

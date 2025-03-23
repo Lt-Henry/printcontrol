@@ -63,6 +63,16 @@ namespace pc
 			return connected;
 		}
 
+		std::string DevicePath()
+		{
+			return devicePath;
+		}
+		
+		PrintStatus Status()
+		{
+			return printStatus;
+		}
+		
 		void LoadFile(std::string filename);
 
 		void Exec(std::string line);
@@ -102,6 +112,7 @@ namespace pc
 		BSerialPort device;
 		BLooper* m_cb;
 		bool connected;
+		std::string devicePath;
 		
 		pc::GCode m_gcode;
 		

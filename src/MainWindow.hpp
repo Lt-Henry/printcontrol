@@ -54,6 +54,8 @@ namespace pc
 		
 		protected:
 		
+		void UpdateStatus();
+		
 		BMessage* settings;
 		BFilePanel* openPanel;
 		
@@ -61,6 +63,7 @@ namespace pc
 		BTextView* console;
 		BTextControl* txtCmd;
 		BButton* btnCmd;
+		BStringView* statusText;
 		
 		// Info view
 		

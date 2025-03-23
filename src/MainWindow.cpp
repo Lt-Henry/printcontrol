@@ -47,6 +47,7 @@ SOFTWARE.
 #include <OS.h>
 
 #include <iostream>
+#include <sstream>
 
 using namespace pc;
 
@@ -188,7 +189,7 @@ MainWindow::MainWindow()
 	clog<<area.left<<","<<area.top<<","<<area.right<<","<<area.bottom<<endl;
 	
 	BView* statusBar = new BView(BRect(0,area.bottom-24,area.right,area.bottom),"statusBar", B_FOLLOW_ALL, 0);
-	BStringView* statusText = new BStringView(statusBar->Bounds(),"statusText","Connection: None, Status: None", B_FOLLOW_ALL);
+	statusText = new BStringView(statusBar->Bounds(),"statusText","Connection: None, Status: None", B_FOLLOW_ALL);
 	AddChild(statusBar);
 	statusBar->AddChild(statusText);
 	
@@ -388,4 +389,44 @@ void MainWindow::Echo(BString text)
 {
 	console->Insert(text.String());
 	console->Invalidate();
+}
+
+void MainWindow::UpdateStatus()
+{
+	stringstream ss;
+	
+	ss<<"Connection:";
+	
+	if (driver->IsConnected()) {
+		ss<<driver->DevicePath();
+	}
+	else {
+		ss<<"None";
+	}
+	
+	ss<<", Status:";
+	
+	PrintStatus status = driver->Status();
+	
+	switch (status) {
+		case PrintStatus::Off:
+			ss<<"Off";
+		break;
+		
+		case PrintStatus::Running:
+			ss<<"Running";
+		break;
+		
+		case PrintStatus::Paused:
+			ss<<"Paused";
+		break;
+		
+		case PrintStatus::Ended:
+			ss<<"Ended";
+		break;
+		default:
+			ss<<"Unknown";
+	}
+	statusText->SetText(ss.str().c_str());
+	
 }
