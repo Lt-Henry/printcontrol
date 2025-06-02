@@ -191,6 +191,7 @@ MainWindow::MainWindow()
 	BView* statusBar = new BView(BRect(0,area.bottom-24,area.right,area.bottom),"statusBar", B_FOLLOW_ALL, 0);
 	statusText = new BStringView(statusBar->Bounds(),"statusText","Connection: None, Status: None", B_FOLLOW_ALL);
 	AddChild(statusBar);
+	statusBar->Looper()->AddHandler(this);
 	statusBar->AddChild(statusText);
 	
 	BTabView* tabView = new BTabView(BRect(0,area.top, area.right, area.bottom),"tab");
@@ -229,6 +230,9 @@ MainWindow::MainWindow()
 	tabView->TabAt(0)->SetLabel("Console");
 	tabView->TabAt(1)->SetLabel("Info");
 	AddChild(tabView);
+	
+	messenger = BMessenger(nullptr,this);
+	messageRunner = new BMessageRunner(messenger, new BMessage(Message::QueryInfo), 1000000);
 	
 	driver = new SerialDriver(this);
 	driver->Run();
@@ -379,7 +383,13 @@ void MainWindow::MessageReceived(BMessage* message)
 			clog<<"Start printing..."<<endl;
 			driver->PrintRun();
 		break;
-			
+		
+		case Message::QueryInfo:
+			if (driver->IsConnected()) {
+				UpdateStatus();
+			}
+		break;
+		
 		default:
 		BWindow::MessageReceived(message);
 	}
@@ -427,6 +437,11 @@ void MainWindow::UpdateStatus()
 		default:
 			ss<<"Unknown";
 	}
+	
+	int count = driver->Lines();
+	int current = driver->CurrentLine();
+	ss<<" Progress:"<<current<<"/"<<count<<" "<<100.0f * (float)current/count;
+	
 	statusText->SetText(ss.str().c_str());
 	
 }

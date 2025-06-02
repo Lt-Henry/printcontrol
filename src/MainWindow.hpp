@@ -35,6 +35,8 @@ SOFTWARE.
 #include <TextControl.h>
 #include <Button.h>
 #include <StringView.h>
+#include <Messenger.h>
+#include <MessageRunner.h>
 
 #include <string>
 
@@ -55,6 +57,9 @@ namespace pc
 		protected:
 		
 		void UpdateStatus();
+		
+		BMessenger messenger;
+		BMessageRunner* messageRunner;
 		
 		BMessage* settings;
 		BFilePanel* openPanel;

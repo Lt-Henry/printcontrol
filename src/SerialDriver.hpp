@@ -104,6 +104,16 @@ namespace pc
 		
 		void PushEcho(std::string text);
 		
+		int Lines()
+		{
+			return m_gcode.Lines();
+		}
+		
+		int CurrentLine()
+		{
+			return readLine;
+		}
+		
 		protected:
 		BMessenger messenger;
 		BMessageRunner* messageRunner;
