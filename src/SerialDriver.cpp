@@ -395,7 +395,18 @@ void SerialDriver::PrintStop()
 
 void SerialDriver::Send(string line)
 {
-	size_t size = device.Write((const void *)line.c_str(),line.size());
+	string buffer;
+	
+	for (char c:line) {
+		//strip comments from lines
+		if (c == ';') {
+			continue;
+		}
+		
+		buffer = buffer + c;
+	}
+	
+	size_t size = device.Write((const void *)buffer.c_str(),buffer.size());
 	if (size<=0) {
 		cerr<<"Output error:"<<size<<endl;
 		return;
@@ -418,7 +429,7 @@ void SerialDriver::PopOk()
 		
 		if (value <= 0) {
 			//clog<<"waiting for ok..."<<endl;
-			snooze(100000);
+			snooze(1000);
 		}
 		else {
 			atomic_add(&okCount,-1);
