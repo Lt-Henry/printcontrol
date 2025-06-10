@@ -376,11 +376,13 @@ void SerialDriver::Retract(uint32 mm)
 
 void SerialDriver::PrintRun()
 {
-	printStatus = PrintStatus::Running;
-	//Exec("M110 N1");
-	printLine = 0;
-	readLine = 0;
-	PostMessage(Message::PrintStep);
+	if (printStatus == PrintStatus::Off) {
+		printStatus = PrintStatus::Running;
+		//Exec("M110 N1");
+		printLine = 0;
+		readLine = 0;
+		PostMessage(Message::PrintStep);
+	}
 }
 
 void SerialDriver::PrintPause()
@@ -391,6 +393,12 @@ void SerialDriver::PrintPause()
 void SerialDriver::PrintStop()
 {
 	printStatus = PrintStatus::Ended;
+}
+
+void SerialDriver::PrintRestart()
+{
+	printStatus = PrintStatus::Off;
+	PrintRun();
 }
 
 void SerialDriver::Send(string line)
@@ -417,7 +425,6 @@ void SerialDriver::Send(string line)
 void SerialDriver::PushOk()
 {
 	atomic_add(&okCount,1);
-	//clog<<"pushed ok!"<<endl;
 }
 
 void SerialDriver::PopOk()
@@ -428,8 +435,8 @@ void SerialDriver::PopOk()
 		value = atomic_get(&okCount);
 		
 		if (value <= 0) {
-			//clog<<"waiting for ok..."<<endl;
-			snooze(1000);
+			
+			snooze(500); //500 us (0.5 ms)
 		}
 		else {
 			atomic_add(&okCount,-1);

@@ -48,6 +48,7 @@ SOFTWARE.
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 using namespace pc;
 
@@ -358,7 +359,7 @@ void MainWindow::MessageReceived(BMessage* message)
 		case Message::MenuHotend: {
 			int8 enable = message->FindInt8("enable");
 			//TODO
-			int temperature = (enable == 0) ? 0 : 150;
+			int temperature = (enable == 0) ? 0 : 190;
 			driver->Hotend(0,temperature);
 		}
 		break;
@@ -372,16 +373,31 @@ void MainWindow::MessageReceived(BMessage* message)
 		break;
 		
 		case Message::MenuExtrude:
-		
+			driver->Extrude(message->FindInt8("mm"));
 		break;
 		
 		case Message::MenuRetract:
-		
+			driver->Retract(message->FindInt8("mm"));
 		break;
 		
 		case Message::MenuRun:
 			clog<<"Start printing..."<<endl;
 			driver->PrintRun();
+		break;
+		
+		case Message::MenuPause:
+			clog<<"Paused printing..."<<endl;
+			driver->PrintPause();
+		break;
+		
+		case Message::MenuStop:
+			clog<<"Stop printing..."<<endl;
+			driver->PrintStop();
+		break;
+		
+		case Message::MenuRestart:
+			clog<<"Restart printing..."<<endl;
+			driver->PrintRestart();
 		break;
 		
 		case Message::QueryInfo:
@@ -440,8 +456,10 @@ void MainWindow::UpdateStatus()
 	
 	int count = driver->Lines();
 	int current = driver->CurrentLine();
-	ss<<" Progress:"<<current<<"/"<<count<<" "<<100.0f * (float)current/count;
 	
+	if (count > 0) {
+		ss<<" Progress:"<<current<<"/"<<count<<" "<<std::fixed<<std::setprecision(2)<<(100.0f * (float)current/count)<<"%";
+	}
 	statusText->SetText(ss.str().c_str());
 	
 }

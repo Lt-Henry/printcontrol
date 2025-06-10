@@ -86,6 +86,7 @@ namespace pc
 		void PrintRun();
 		void PrintPause();
 		void PrintStop();
+		void PrintRestart();
 		
 		BSerialPort* Device()
 		{
