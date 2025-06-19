@@ -115,6 +115,11 @@ namespace pc
 			return readLine;
 		}
 		
+		pc::GCode& GCode()
+		{
+			return m_gcode;
+		}
+		
 		protected:
 		BMessenger messenger;
 		BMessageRunner* messageRunner;

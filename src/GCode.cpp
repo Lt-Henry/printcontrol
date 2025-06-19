@@ -103,6 +103,9 @@ void GCode::LoadFile(const char* filename)
 	float Z = 0.0f;
 	float E = 0.0f;
 	
+	float current_layer_z = Z;
+	m_layers = 0;
+	
 	ifstream file(filename);
 	string line;
 	
@@ -134,6 +137,11 @@ void GCode::LoadFile(const char* filename)
 							case 'Z':
 								Z = value;
 								
+								if (Z > current_layer_z) {
+									current_layer_z = Z;
+									m_layers++;
+								}
+								
 								if (Z > m_height) {
 									m_height = Z;
 								}
@@ -141,7 +149,9 @@ void GCode::LoadFile(const char* filename)
 							
 							case 'E':
 								E = value;
-								m_filament += E;
+								if (E>0) {
+									m_filament += E;
+								}
 							break;
 						}
 					}

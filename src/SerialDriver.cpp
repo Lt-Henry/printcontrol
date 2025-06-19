@@ -118,6 +118,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 			m_gcode.LoadFile(path.Path());
 			clog<<"lines:"<<m_gcode.Lines()<<endl;
 			clog<<"height:"<<m_gcode.Height()<<endl;
+			clog<<"layers:"<<m_gcode.Layers()<<endl;
 			clog<<"filament:"<<m_gcode.Filament()<<endl;
 			m_cb->PostMessage(Message::FileLoaded);
 			}
@@ -178,7 +179,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 			int mm = message->FindInt32("mm");
 			
 			tmp<<"G0 "<<"E"<<mm;
-			
+			Exec("M83");
 			Exec(tmp.str());
 		}
 		break;
@@ -189,6 +190,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 			
 			tmp<<"G0 "<<"E-"<<mm;
 			
+			Exec("M83");
 			Exec(tmp.str());
 		}
 		break;

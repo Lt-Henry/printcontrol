@@ -30,6 +30,20 @@ SOFTWARE.
 
 namespace pc
 {
+	class Segment
+	{
+		public:
+		float x0,x1,y0,y1;
+		int line;
+	};
+	
+	class Layer
+	{
+		public:
+		
+		std::vector<Segment> segments;
+	};
+	
 	class GCode
 	{
 		public:
@@ -58,12 +72,18 @@ namespace pc
 			return m_filament;
 		}
 		
+		int Layers() const
+		{
+			return m_layers;
+		}
+		
 		protected:
 		
 		void Reset();
 		
 		float m_height;
 		float m_filament;
+		int m_layers;
 		
 		std::vector<std::string> m_lines;
 	};

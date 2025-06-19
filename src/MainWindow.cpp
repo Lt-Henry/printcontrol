@@ -285,7 +285,7 @@ void MainWindow::MessageReceived(BMessage* message)
 		
 		case Message::MenuDevice:
 			if (!driver->IsConnected()) {
-				clog<<"opening device "<<message->FindString("name")<<endl;
+				Echo(BString("Opening device ") << message->FindString("name") << "\n");
 				driver->Connect(message->FindString("name"),settings);
 			}
 			else {
@@ -309,13 +309,12 @@ void MainWindow::MessageReceived(BMessage* message)
 		
 		case Message::Connected:
 			
-			Echo("*** Connected ***");
-			//driver->Exec("M115");
+			Echo("Connected\n");
 		break;
 		
 		case Message::Disconnected:
 			
-			clog<<"Disconnected"<<endl;
+			Echo("Disconnected\n");
 		break;
 		
 		case Message::Echo: {
@@ -345,6 +344,9 @@ void MainWindow::MessageReceived(BMessage* message)
 		case Message::FileLoaded: {
 			clog<<"File has been loaded"<<endl;
 			Echo("File loaded\n");
+			Echo(BString("Number of lines: ") << driver->GCode().Lines() << "\n");
+			Echo(BString("Height: ") << driver->GCode().Height() << "mm\n");
+			Echo(BString("Filament estimation: ") << (int)driver->GCode().Filament() << "mm\n");
 		}
 		break;
 		
@@ -381,22 +383,22 @@ void MainWindow::MessageReceived(BMessage* message)
 		break;
 		
 		case Message::MenuRun:
-			clog<<"Start printing..."<<endl;
+			Echo("Start printing...\n");
 			driver->PrintRun();
 		break;
 		
 		case Message::MenuPause:
-			clog<<"Paused printing..."<<endl;
+			Echo("Pause print\n");
 			driver->PrintPause();
 		break;
 		
 		case Message::MenuStop:
-			clog<<"Stop printing..."<<endl;
+			Echo("Stop printing...\n");
 			driver->PrintStop();
 		break;
 		
 		case Message::MenuRestart:
-			clog<<"Restart printing..."<<endl;
+			Echo("Restart printing...\n");
 			driver->PrintRestart();
 		break;
 		
