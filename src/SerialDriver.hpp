@@ -83,6 +83,9 @@ namespace pc
 		void Extrude(uint32 mm);
 		void Retract(uint32 mm);
 		
+		void QueryInfo();
+		void DisableSteppers();
+		
 		void PrintRun();
 		void PrintPause();
 		void PrintStop();

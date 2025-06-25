@@ -255,7 +255,13 @@ void SerialDriver::MessageReceived(BMessage* message)
 		
 		case Message::QueryInfo:
 			if (connected) {
-				
+				Exec("M105");
+			}
+		break;
+		
+		case Message::DisableSteppers:
+			if (connected) {
+				Exec("M18");
 			}
 		break;
 
@@ -373,6 +379,18 @@ void SerialDriver::Retract(uint32 mm)
 {
 	BMessage* msg = new BMessage(Message::Retract);
 	msg->AddInt32("mm",mm);
+	PostMessage(msg);
+}
+
+void SerialDriver::QueryInfo()
+{
+	BMessage* msg = new BMessage(Message::QueryInfo);
+	PostMessage(msg);
+}
+
+void SerialDriver::DisableSteppers()
+{
+	BMessage* msg = new BMessage(Message::DisableSteppers);
 	PostMessage(msg);
 }
 

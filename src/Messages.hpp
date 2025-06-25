@@ -74,6 +74,7 @@ namespace pc
 		Exec,
 		Extrude,
 		Retract,
+		DisableSteppers,
 		
 		PrintStep
 		
