@@ -254,7 +254,7 @@ void SerialDriver::MessageReceived(BMessage* message)
 		break;
 		
 		case Message::QueryInfo:
-			if (connected) {
+			if (connected and printStatus == PrintStatus::Running) {
 				Exec("M105");
 			}
 		break;

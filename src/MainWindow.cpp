@@ -233,7 +233,7 @@ MainWindow::MainWindow()
 	AddChild(tabView);
 	
 	messenger = BMessenger(nullptr,this);
-	messageRunner = new BMessageRunner(messenger, new BMessage(Message::QueryInfo), 1000000);
+	messageRunner = new BMessageRunner(messenger, new BMessage(Message::QueryInfo), 5000000);
 	
 	driver = new SerialDriver(this);
 	driver->Run();
