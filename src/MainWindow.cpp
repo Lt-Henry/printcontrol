@@ -325,6 +325,20 @@ void MainWindow::MessageReceived(BMessage* message)
 		}
 		break;
 		
+		case Message::UpdateVariables: {
+			int n = 0;
+			char* name;
+			uint32 type;
+			int32 count;
+			
+			while (message->GetInfo(B_ANY_TYPE, n, &name, &type, &count) == B_OK) {
+				float value = message->FindFloat(name);
+				clog<<"var:"<<name<<" value:"<<value<<endl;
+				n++;
+			}
+		}
+		break;
+		
 		case Message::OpenRequest: {
 				clog<<"open requested!"<<endl;
 				entry_ref ref;

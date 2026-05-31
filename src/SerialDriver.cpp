@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include <iostream>
 #include <sstream>
+#include <map>
 
 using namespace pc;
 
@@ -293,6 +294,10 @@ void SerialDriver::MessageReceived(BMessage* message)
 			PostMessage(Message::PrintStep);
 		}
 		break;
+		
+		case Message::UpdateVariables:
+			m_cb->PostMessage(message);
+		break;
 	}
 }
 
@@ -484,6 +489,7 @@ uint32 _ProcessInput(SerialDriver* driver, string in)
 	string token;
 	string cmd;
 	string value;
+	map<string,float> vars;
 	
 	bool echo = false;
 	bool ok = false;
@@ -510,6 +516,13 @@ uint32 _ProcessInput(SerialDriver* driver, string in)
 					
 					if (cmd.size() > 0) {
 						clog<<cmd<<"="<<token<<endl;
+						
+						try {
+							vars[cmd] = std::stof(token);
+						}
+						catch(...) {
+							//for now, just ignore bad parsed floats
+						}
 					}
 					
 					token.clear();
@@ -539,6 +552,15 @@ uint32 _ProcessInput(SerialDriver* driver, string in)
 	
 	if (ok) {
 		driver->PushOk();
+	}
+	
+	if (vars.size() > 0) {
+		BMessage* msg = new BMessage(Message::UpdateVariables);
+		
+		for (auto & item  : vars) {
+			msg->AddFloat(item.first.c_str(),item.second);
+		}
+		driver->PostMessage(msg);
 	}
 	
 	return 0;

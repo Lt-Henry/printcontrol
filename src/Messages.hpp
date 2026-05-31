@@ -76,7 +76,8 @@ namespace pc
 		Retract,
 		DisableSteppers,
 		
-		PrintStep
+		PrintStep,
+		UpdateVariables
 		
 	};
 	
