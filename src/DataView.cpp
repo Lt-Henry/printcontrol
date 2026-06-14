@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2024 Enrique Medina Gremaldos <quique@necos.es>
+Copyright (c) 2026 Enrique Medina Gremaldos <quique@necos.es>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,61 +22,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef PC_MAIN_WINDOW
-#define PC_MAIN_WINDOW
-
-#include "SerialDriver.hpp"
-#include "SettingsWindow.hpp"
 #include "DataView.hpp"
 
-#include <Window.h>
-#include <GroupView.h>
-#include <FilePanel.h>
-#include <TextView.h>
-#include <TextControl.h>
-#include <Button.h>
-#include <StringView.h>
-#include <Messenger.h>
-#include <MessageRunner.h>
+using namespace pc;
+using namespace std;
 
-#include <string>
-
-namespace pc
+DataView::DataView(BRect frame,const char* name, uint32 resizingMode, uint32 flags) : BView(frame,name,resizingMode,flags)
 {
-	class MainWindow : public BWindow
-	{
-		public:
-		
-		MainWindow();
-		~MainWindow();
-		
-		virtual bool QuitRequested() override;
-		void MessageReceived(BMessage* message) override;
-		
-		void Echo(BString text);
-		
-		protected:
-		
-		void UpdateStatus();
-		
-		BMessenger messenger;
-		BMessageRunner* messageRunner;
-		
-		BMessage* settings;
-		BFilePanel* openPanel;
-		
-		// Console view
-		BTextView* console;
-		BTextControl* txtCmd;
-		BButton* btnCmd;
-		BStringView* statusText;
-		
-		// Info view
-		DataView* dataView;
-		
-		pc::SerialDriver* driver;
-		
-		SettingsWindow* settingsWindow;
-	};
 }
-#endif
+
+DataView::~DataView()
+{
+}
+
+void DataView::Push(map<string,float> data)
+{
+}
+
+void DataView::Draw(BRect updateRect)
+{
+}

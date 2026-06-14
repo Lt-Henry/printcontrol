@@ -224,9 +224,9 @@ MainWindow::MainWindow()
 		.Add(btnCmd, 3,2,1,1);
 		
 	
-	BView* infoView = new BView(area,"infoArea", B_FOLLOW_ALL,0);
-	infoView->SetResizingMode(B_FOLLOW_ALL);
-	tabView->AddTab(infoView);
+	dataView = new DataView(area,"infoArea", B_FOLLOW_ALL,0);
+	dataView->SetResizingMode(B_FOLLOW_ALL);
+	tabView->AddTab(dataView);
 	
 	tabView->TabAt(0)->SetLabel("Console");
 	tabView->TabAt(1)->SetLabel("Info");
