@@ -330,12 +330,16 @@ void MainWindow::MessageReceived(BMessage* message)
 			char* name;
 			uint32 type;
 			int32 count;
+			map<string,float> data;
 			
 			while (message->GetInfo(B_ANY_TYPE, n, &name, &type, &count) == B_OK) {
 				float value = message->FindFloat(name);
-				clog<<"var:"<<name<<" value:"<<value<<endl;
+				//clog<<"var:"<<name<<" value:"<<value<<endl;
+				data[name] = value;
 				n++;
 			}
+			
+			dataView->Push(data);
 		}
 		break;
 		

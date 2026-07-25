@@ -24,10 +24,14 @@ SOFTWARE.
 
 #include "DataView.hpp"
 
+#include <Window.h>
+
+#include <iostream>
+
 using namespace pc;
 using namespace std;
 
-DataView::DataView(BRect frame,const char* name, uint32 resizingMode, uint32 flags) : BView(frame,name,resizingMode,flags)
+DataView::DataView(BRect frame,const char* name, uint32 resizingMode, uint32 flags) : BView(frame,name,resizingMode,flags | B_WILL_DRAW)
 {
 }
 
@@ -37,8 +41,38 @@ DataView::~DataView()
 
 void DataView::Push(map<string,float> data)
 {
+	for (auto q : data) {
+		fData[q.first] = q.second;
+	}
+	
+	Invalidate();
+}
+
+void DataView::AttachedToWindow(void)
+{
+	//ResizeTo(Window()->Bounds().right,Window()->Bounds().bottom);
 }
 
 void DataView::Draw(BRect updateRect)
 {
+	rgb_color color_background;
+	color_background.red = 0xf0;
+	color_background.green = 0xf0;
+	color_background.blue = 0xf0;
+	
+	rgb_color color_text;
+	color_text.red = 0x0e;
+	color_text.green = 0x0e;
+	color_text.blue = 0x0e;
+	
+	SetHighColor(color_background);
+	FillRect(Bounds());
+	
+	int line = 16;
+	for (auto q : fData) {
+		SetHighColor(color_text);
+		std::string text = q.first + "=" + std::to_string(q.second);
+		DrawString(text.c_str(),BPoint(5,line));
+		line = line + 32;
+	}
 }

@@ -41,6 +41,7 @@ namespace pc
 		
 		void Push(std::map<std::string,float> data);
 		
+		virtual void AttachedToWindow(void);
 		virtual void Draw(BRect updateRect);
 		
 		protected:
