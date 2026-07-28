@@ -40,8 +40,25 @@ namespace pc
 	class Layer
 	{
 		public:
-		
+		float z;
 		std::vector<Segment> segments;
+		
+		void Clear()
+		{
+			segments.clear();
+		}
+	};
+	
+	class Render
+	{
+		public:
+		
+		std::vector<Layer> layers;
+		
+		void Clear()
+		{
+			layers.clear();
+		}
 	};
 	
 	class GCode
@@ -77,6 +94,11 @@ namespace pc
 			return m_layers;
 		}
 		
+		Render Drawing() const
+		{
+			return m_render;
+		}
+		
 		protected:
 		
 		void Reset();
@@ -86,6 +108,8 @@ namespace pc
 		int m_layers;
 		
 		std::vector<std::string> m_lines;
+		
+		Render m_render;
 	};
 }
 

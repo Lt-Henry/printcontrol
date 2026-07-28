@@ -103,8 +103,15 @@ void GCode::LoadFile(const char* filename)
 	float Z = 0.0f;
 	float E = 0.0f;
 	
+	float LX = X;
+	float LY = Y;
+	float LZ = Z;
+	float LE = E;
+	
 	float current_layer_z = Z;
 	m_layers = 0;
+	
+	Layer layer;
 	
 	ifstream file(filename);
 	string line;
@@ -120,6 +127,7 @@ void GCode::LoadFile(const char* filename)
 			string& token = tokens[0];
 			
 			if (token == "G1") {
+				G1++;
 				for (size_t n=1;n<tokens.size();n++) {
 					char name;
 					float value;
@@ -127,19 +135,26 @@ void GCode::LoadFile(const char* filename)
 					if (Value(tokens[n],name,value)) {
 						switch (name) {
 							case 'X':
+								LX = X;
 								X = value;
 							break;
 							
 							case 'Y':
+								LY = Y;
 								Y = value;
 							break;
 							
 							case 'Z':
+								LZ = Z;
 								Z = value;
 								
 								if (Z > current_layer_z) {
 									current_layer_z = Z;
 									m_layers++;
+									
+									m_render.layers.push_back(layer);
+									layer.Clear();
+									layer.z = Z;
 								}
 								
 								if (Z > m_height) {
@@ -148,6 +163,7 @@ void GCode::LoadFile(const char* filename)
 							break;
 							
 							case 'E':
+								LE = E;
 								E = value;
 								if (E>0) {
 									m_filament += E;
@@ -156,6 +172,15 @@ void GCode::LoadFile(const char* filename)
 						}
 					}
 				}
+				
+				//store G1 Line
+				Segment g1;
+				g1.line = m_lines.size(); //not matching Gcode N number
+				g1.x0 = LX;
+				g1.y0 = LY;
+				g1.x1 = X;
+				g1.y1 = Y;
+				layer.segments.push_back(g1);
 			}
 		}
 	}
