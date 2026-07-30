@@ -176,10 +176,14 @@ void GCode::LoadFile(const char* filename)
 				//store G1 Line
 				Segment g1;
 				g1.line = m_lines.size(); //not matching Gcode N number
-				g1.x0 = LX;
-				g1.y0 = LY;
-				g1.x1 = X;
-				g1.y1 = Y;
+				g1.start = BPoint(LX,LY);
+				g1.end = BPoint(X,Y);
+				if (E > LE) {
+					g1.type = SegmentType::Fill;
+				}
+				else {
+					g1.type = SegmentType::Fly;
+				}
 				layer.segments.push_back(g1);
 			}
 		}

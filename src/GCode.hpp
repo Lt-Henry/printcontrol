@@ -25,15 +25,25 @@ SOFTWARE.
 #ifndef PC_GCODE
 #define PC_GCODE
 
+#include <Point.h>
+
 #include <string>
 #include <vector>
 
 namespace pc
 {
+	enum class SegmentType
+	{
+		Fly,
+		Fill
+	};
+	
 	class Segment
 	{
 		public:
-		float x0,x1,y0,y1;
+		BPoint start;
+		BPoint end;
+		SegmentType type;
 		int line;
 	};
 	

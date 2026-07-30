@@ -43,9 +43,11 @@ namespace pc
 		
 		virtual void AttachedToWindow(void);
 		virtual void Draw(BRect updateRect);
+		virtual void MessageReceived(BMessage* message);
 		
 		void SetRender(GRender* render)
 		{
+			fCurrentLayer = 0;
 			fRender = render;
 			Invalidate();
 		}
@@ -53,6 +55,7 @@ namespace pc
 		protected:
 		
 		GRender* fRender;
+		int fCurrentLayer;
 	};
 }
 #endif

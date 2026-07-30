@@ -48,21 +48,83 @@ void GView::Draw(BRect updateRect)
 {
 	SetScale(2.0);
 	
+	rgb_color color_fly;
+	color_fly.red = 0x0e;
+	color_fly.green = 0x0e;
+	color_fly.blue = 0xff;
+	
 	rgb_color color_fill;
 	color_fill.red = 0xff;
 	color_fill.green = 0x0e;
 	color_fill.blue = 0x0e;
-	SetHighColor(color_fill);
+	
+	rgb_color color_back;
+	color_back.red = 0x7e;
+	color_back.green = 0x7e;
+	color_back.blue = 0x7e;
+	
 	
 	if (fRender) {
+		clog<<"drawing layer "<<fCurrentLayer<<endl;
 		
-		for(Layer& layer : fRender->layers) {
+		if (fCurrentLayer > 0) {
+			Layer& layer = fRender->layers[fCurrentLayer-1];
 			for (Segment& segment : layer.segments) {
-				BPoint a(segment.x0,segment.y0);
-				BPoint b(segment.x1,segment.y1);
 				
-				StrokeLine(a,b);
+				if (segment.type == SegmentType::Fly) {
+					continue;
+				}
+				
+				if (segment.type == SegmentType::Fill) {
+					SetHighColor(color_back);
+				}
+				
+				StrokeLine(segment.start,segment.end);
 			}
 		}
+		
+		Layer& layer = fRender->layers[fCurrentLayer];
+		for (Segment& segment : layer.segments) {
+			
+			if (segment.type == SegmentType::Fly) {
+				SetHighColor(color_fly);
+			}
+			
+			if (segment.type == SegmentType::Fill) {
+				SetHighColor(color_fill);
+			}
+			
+			StrokeLine(segment.start,segment.end);
+		}
+	}
+}
+
+void GView::MessageReceived(BMessage* message)
+{
+	float delta;
+	switch (message->what) {
+		case B_MOUSE_WHEEL_CHANGED:
+			if(message->FindFloat("be:wheel_delta_y",&delta) == B_OK) {
+				if (delta > 0) {
+					fCurrentLayer--;
+				}
+				else {
+					fCurrentLayer++;
+				}
+				
+				if (fCurrentLayer < 0) {
+					fCurrentLayer = 0;
+				}
+				
+				if (fRender and fCurrentLayer >= fRender->layers.size()) {
+					fCurrentLayer = fRender->layers.size() - 1;
+				}
+				Invalidate();
+			}
+		break;
+
+		default:
+			BView::MessageReceived(message);
+		break;
 	}
 }
