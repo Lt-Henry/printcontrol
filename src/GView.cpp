@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2024 Enrique Medina Gremaldos <quique@necos.es>
+Copyright (c) 2026 Enrique Medina Gremaldos <quique@necos.es>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,63 +22,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef PC_MAIN_WINDOW
-#define PC_MAIN_WINDOW
-
-#include "SerialDriver.hpp"
-#include "SettingsWindow.hpp"
-#include "DataView.hpp"
 #include "GView.hpp"
 
 #include <Window.h>
-#include <GroupView.h>
-#include <FilePanel.h>
-#include <TextView.h>
-#include <TextControl.h>
-#include <Button.h>
-#include <StringView.h>
-#include <Messenger.h>
-#include <MessageRunner.h>
 
-#include <string>
+#include <iostream>
 
-namespace pc
+using namespace pc;
+using namespace std;
+
+GView::GView(BRect frame,const char* name, uint32 resizingMode, uint32 flags) : BView(frame,name,resizingMode,flags | B_WILL_DRAW), fRender(nullptr)
 {
-	class MainWindow : public BWindow
-	{
-		public:
-		
-		MainWindow();
-		~MainWindow();
-		
-		virtual bool QuitRequested() override;
-		void MessageReceived(BMessage* message) override;
-		
-		void Echo(BString text);
-		
-		protected:
-		
-		void UpdateStatus();
-		
-		BMessenger messenger;
-		BMessageRunner* messageRunner;
-		
-		BMessage* settings;
-		BFilePanel* openPanel;
-		
-		// Console view
-		BTextView* console;
-		BTextControl* txtCmd;
-		BButton* btnCmd;
-		BStringView* statusText;
-		
-		// Info view
-		DataView* dataView;
-		GView* fGView;
-		
-		pc::SerialDriver* driver;
-		
-		SettingsWindow* settingsWindow;
-	};
 }
-#endif
+
+GView::~GView()
+{
+}
+
+void GView::AttachedToWindow(void)
+{
+	//ResizeTo(Window()->Bounds().right,Window()->Bounds().bottom);
+}
+
+void GView::Draw(BRect updateRect)
+{
+	SetScale(2.0);
+	
+	rgb_color color_fill;
+	color_fill.red = 0xff;
+	color_fill.green = 0x0e;
+	color_fill.blue = 0x0e;
+	SetHighColor(color_fill);
+	
+	if (fRender) {
+		
+		for(Layer& layer : fRender->layers) {
+			for (Segment& segment : layer.segments) {
+				BPoint a(segment.x0,segment.y0);
+				BPoint b(segment.x1,segment.y1);
+				
+				StrokeLine(a,b);
+			}
+		}
+	}
+}

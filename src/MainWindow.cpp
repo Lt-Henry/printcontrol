@@ -228,8 +228,14 @@ MainWindow::MainWindow()
 	dataView->SetResizingMode(B_FOLLOW_ALL);
 	tabView->AddTab(dataView);
 	
+	fGView = new GView(area,"gView", B_FOLLOW_ALL, 0);
+	fGView->SetResizingMode(B_FOLLOW_ALL);
+	tabView->AddTab(fGView);
+	
+	
 	tabView->TabAt(0)->SetLabel("Console");
 	tabView->TabAt(1)->SetLabel("Info");
+	tabView->TabAt(2)->SetLabel("Model");
 	AddChild(tabView);
 	
 	messenger = BMessenger(nullptr,this);
@@ -365,6 +371,8 @@ void MainWindow::MessageReceived(BMessage* message)
 			Echo(BString("Number of lines: ") << driver->GCode().Lines() << "\n");
 			Echo(BString("Height: ") << driver->GCode().Height() << "mm\n");
 			Echo(BString("Filament estimation: ") << (int)driver->GCode().Filament() << "mm\n");
+			
+			fGView->SetRender(driver->GCode().Render());
 		}
 		break;
 		

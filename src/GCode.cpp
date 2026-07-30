@@ -151,8 +151,8 @@ void GCode::LoadFile(const char* filename)
 								if (Z > current_layer_z) {
 									current_layer_z = Z;
 									m_layers++;
-									
-									m_render.layers.push_back(layer);
+									clog<<"stored layer:"<<m_layers-1<<endl;
+									fRender.layers.push_back(layer);
 									layer.Clear();
 									layer.z = Z;
 								}

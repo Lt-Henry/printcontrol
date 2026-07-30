@@ -49,7 +49,7 @@ namespace pc
 		}
 	};
 	
-	class Render
+	class GRender
 	{
 		public:
 		
@@ -94,9 +94,9 @@ namespace pc
 			return m_layers;
 		}
 		
-		Render Drawing() const
+		GRender* Render()
 		{
-			return m_render;
+			return &fRender;
 		}
 		
 		protected:
@@ -109,7 +109,7 @@ namespace pc
 		
 		std::vector<std::string> m_lines;
 		
-		Render m_render;
+		GRender fRender;
 	};
 }
 
